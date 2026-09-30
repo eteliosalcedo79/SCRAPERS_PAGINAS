@@ -17,12 +17,20 @@ async def main():
 
         print("Abriendo página principal...", flush=True)
         try:
-            # Usamos networkidle para esperar a que carguen los scripts que arman el acordeón
             await page.goto(BASE_URL, wait_until="networkidle", timeout=60000)
         except Exception as e:
             print(f"Error cargando la página principal: {e}", flush=True)
             await browser.close()
             return
+
+        # --- Verificación anti-bot (Cloudflare) ---
+        content = await page.content()
+        if "Just a moment" in content or "cf-challenge" in content or "Cloudflare" in content:
+            print("⚠️ ¡ALERTA! GitHub Actions ha sido bloqueado por Cloudflare.", flush=True)
+            print("Solución: Ejecuta el script localmente en tu PC.", flush=True)
+            await browser.close()
+            return
+        # ------------------------------------------
 
         print("Buscando eventos...", flush=True)
         try:
@@ -32,36 +40,46 @@ async def main():
             await browser.close()
             return
 
-        # Extraemos todos los eventos
-        eventos = await page.locator("article.tr-event").all()
-        total_eventos = len(eventos)
+        # Contamos cuántos eventos hay en total
+        total_eventos = await page.locator("article.tr-event").count()
         print(f"Se encontraron {total_eventos} eventos en total.", flush=True)
 
-        for i, evento in enumerate(eventos):
-            # Extraer el título del evento (usando text_content para evitar problemas de visibilidad)
+        for i in range(total_eventos):
+            # Re-consultamos el evento en cada iteración para evitar elementos obsoletos (stale elements)
+            evento = page.locator("article.tr-event").nth(i)
+            
             try:
-                titulo = (await evento.locator(".tr-event-title").text_content()).strip()
-                if not titulo:
+                titulo_elem = evento.locator(".tr-event-title")
+                if await titulo_elem.count() > 0:
+                    titulo = (await titulo_elem.text_content()).strip()
+                else:
                     titulo = f"Evento_{i+1}"
             except:
                 titulo = f"Evento_{i+1}"
 
             print(f"\n[{i+1}/{total_eventos}] Procesando: {titulo}", flush=True)
 
-            # Extraer los enlaces de los canales de este evento
-            canales = await evento.locator(".tr-event-channel").all()
-            if not canales:
+            # Contamos cuántos canales tiene este evento específico
+            canales_locator = evento.locator(".tr-event-channel")
+            canales_count = await canales_locator.count()
+            
+            if canales_count == 0:
                 print(f"  -> No se encontraron canales para este evento.", flush=True)
                 continue
 
             results[titulo] = {}
 
-            for canal in canales:
+            for j in range(canales_count):
                 try:
-                    # Usamos text_content() en lugar de inner_text()
+                    # Re-consultamos el canal específico en cada iteración
+                    canal = canales_locator.nth(j)
+                    
+                    # Esperamos explícitamente a que el canal esté adjunto al DOM
+                    await canal.wait_for(state="attached", timeout=5000)
+                    
                     nombre_canal = (await canal.text_content()).strip()
                     if not nombre_canal:
-                        nombre_canal = "Canal_Desconocido"
+                        nombre_canal = f"Canal_{j+1}"
                         
                     url_canal = await canal.get_attribute("href")
                     if not url_canal.startswith("http"):
@@ -72,7 +90,7 @@ async def main():
                     # Navegamos a la página del canal
                     await page.goto(url_canal, wait_until="domcontentloaded", timeout=30000)
                     
-                    # Esperamos a que el iframe esté adjunto en el DOM
+                    # Esperamos a que el iframe esté adjunto
                     await page.wait_for_selector("iframe", state="attached", timeout=10000)
                     
                     iframe = page.locator("iframe").first
@@ -80,12 +98,21 @@ async def main():
                     
                     results[titulo][nombre_canal] = src
                     print(f"     - {nombre_canal}: OK", flush=True)
+
+                    # Regresamos a la página principal para el siguiente canal
+                    await page.go_back(wait_until="domcontentloaded")
+                    # Esperamos a que los eventos se vuelvan a cargar
+                    await page.wait_for_selector("article.tr-event", timeout=10000)
+
                 except Exception as e:
                     print(f"     - Error con {nombre_canal}: {e}", flush=True)
                     results[titulo][nombre_canal] = None
-                
-                # Pausa breve entre canales
-                await page.wait_for_timeout(1000)
+                    # Si hay un error, intentamos volver a la página principal
+                    try:
+                        await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=30000)
+                        await page.wait_for_selector("article.tr-event", timeout=10000)
+                    except:
+                        pass
 
         await browser.close()
 
