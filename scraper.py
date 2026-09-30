@@ -26,46 +26,54 @@ async def main():
             await browser.close()
             return
 
+        # ✅ EXTRAEMOS TODOS LOS ENLACES DE UNA SOLA VEZ (Evita el timeout)
         canal_links = await page.locator("a[href*='/canales/']").all()
-        total_canales = len(canal_links)
-        print(f"Se encontraron {total_canales} canales en total.", flush=True)
+        canales_a_procesar = []
         
-        # 👈 AQUÍ QUITAMOS EL LÍMITE DE 3 PARA PROCESAR TODOS
-        for i in range(total_canales): 
-            link = page.locator("a[href*='/canales/']").nth(i)
-            nombre_canal = (await link.inner_text()).strip()
+        for link in canal_links:
+            nombre = (await link.inner_text()).strip()
             href = await link.get_attribute("href")
             if not href.startswith("http"):
                 href = BASE_URL.rstrip("/") + href
-                
-            print(f"\n[{i+1}/{total_canales}] Procesando: {nombre_canal}", flush=True)
+            canales_a_procesar.append({"nombre": nombre, "href": href})
             
-            await page.goto(href, wait_until="domcontentloaded", timeout=30000)
+        total_canales = len(canales_a_procesar)
+        print(f"Se encontraron {total_canales} canales en total.", flush=True)
+        
+        # Iteramos sobre la lista que ya tenemos guardada
+        for i, canal in enumerate(canales_a_procesar): 
+            print(f"\n[{i+1}/{total_canales}] Procesando: {canal['nombre']}", flush=True)
             
             try:
-                await page.wait_for_selector("text=/OPCIÓN/", timeout=10000)
-            except:
-                print(f"  -> No se encontraron opciones para {nombre_canal}.", flush=True)
-                continue
-            
-            opciones = await page.locator("text=/OPCIÓN/").all()
-            print(f"  -> Encontradas {len(opciones)} opciones.", flush=True)
-            
-            results[nombre_canal] = {}
-            for j in range(len(opciones)):
-                btn = page.locator("text=/OPCIÓN/").nth(j)
-                nombre_opcion = (await btn.inner_text()).strip()
+                # Vamos directo a la URL del canal
+                await page.goto(canal["href"], wait_until="domcontentloaded", timeout=30000)
                 
-                try:
+                # Esperamos a que aparezcan las opciones
+                await page.wait_for_selector("text=/OPCIÓN/", timeout=10000)
+                
+                opciones = await page.locator("text=/OPCIÓN/").all()
+                print(f"  -> Encontradas {len(opciones)} opciones.", flush=True)
+                
+                results[canal['nombre']] = {}
+                for j in range(len(opciones)):
+                    btn = page.locator("text=/OPCIÓN/").nth(j)
+                    nombre_opcion = (await btn.inner_text()).strip()
+                    
                     await btn.click(timeout=5000)
-                    await page.wait_for_timeout(2000)
+                    await page.wait_for_timeout(2000) # Esperar 2 seg que cambie el iframe
                     
                     iframe = page.locator("iframe").first
                     src = await iframe.get_attribute("src")
-                    results[nombre_canal][nombre_opcion] = src
+                    results[canal['nombre']][nombre_opcion] = src
                     print(f"     - {nombre_opcion}: OK", flush=True)
-                except Exception as e:
-                    print(f"     - {nombre_opcion}: FALLÓ ({e})", flush=True)
+                    
+            except Exception as e:
+                # Si un canal falla, lo saltamos y seguimos con el siguiente
+                print(f"  -> Error procesando {canal['nombre']}: {e}", flush=True)
+                continue
+            
+            # Pequeña pausa de 1 segundo entre canal y canal para no saturar el servidor
+            await page.wait_for_timeout(1000)
 
         await browser.close()
     
