@@ -1,0 +1,467 @@
+{
+    "DirecTV Sports": {
+        "OPCIÓN 1 - DirecTV Sports": "https://la18hd.su/vivo/canales.php?stream=dsports",
+        "OPCIÓN 2 - DirecTV Sports": "https://stream-xhd.com/live1.php?stream=dsports",
+        "OPCIÓN 3 - DirecTV Sports": "https://embed.saohgdassregions.com/embed/directvsports.php"
+    },
+    "ESPN 2": {
+        "OPCIÓN 1 - ESPN 2": "https://la18hd.su/vivo/canales.php?stream=espn2",
+        "OPCIÓN 2 - ESPN 2": "https://streamtp-golden1.click/global1.php?stream=espn2",
+        "OPCIÓN 3 - ESPN 2": "https://embed.saohgdassregions.com/embed/espn2.php",
+        "OPCIÓN 4 - ESPN 2": "https://stream-xhd.com/live1.php?stream=espn2",
+        "OPCIÓN 5 - ESPN 2 MX": "https://la18hd.su/vivo/canales.php?stream=espn2mx",
+        "OPCIÓN 6 - ESPN 2 MX": "https://streamtp-golden1.click/global1.php?stream=espn2mx",
+        "OPCIÓN 7 - ESPN 2 MX": "https://embed.saohgdassregions.com/embed/espn2mexico.php"
+    },
+    "ESPN DEPORTES": {
+        "OPCIÓN 1 - ESPN DEPORTES": "https://la18hd.su/vivo/canales.php?stream=espndeportes",
+        "OPCIÓN 2 - ESPN DEPORTES": "https://streamtp-golden1.click/global1.php?stream=espndeportes",
+        "OPCIÓN 3 - ESPN DEPORTES": "https://stream-xhd.com/live1.php?stream=espndeportes"
+    },
+    "Disney 2": {
+        "OPCIÓN 1": "https://streamtp-golden1.click/global1.php?stream=disney2",
+        "OPCIÓN 2": "https://la18hd.su/vivo/canales.php?stream=disney2"
+    },
+    "Disney 4": {
+        "OPCIÓN 1": "https://la18hd.su/vivo/canales.php?stream=disney4",
+        "OPCIÓN 2": "https://streamtp-golden1.click/global1.php?stream=disney4"
+    },
+    "Disney 3": {
+        "OPCIÓN 1": "https://la18hd.su/vivo/canales.php?stream=disney3",
+        "OPCIÓN 2": "https://streamtp-golden1.click/global1.php?stream=disney3"
+    },
+    "Disney 6": {
+        "OPCIÓN 1": "https://la18hd.su/vivo/canales.php?stream=disney6",
+        "OPCIÓN 2": "https://streamtp-golden1.click/global1.php?stream=disney6"
+    },
+    "Liga 1 MAX": {
+        "OPCIÓN 1 - LIGA 1 MAX": "https://cablered.iptvperu.tv:1936/cablered/liga1max.stream/playlist.m3u8",
+        "OPCIÓN 2 - LIGA 1 MAX": "https://la18hd.su/vivo/canales.php?stream=liga1max",
+        "OPCIÓN 3 - LIGA 1 MAX": "https://streamtp-golden1.click/global1.php?stream=liga1max",
+        "OPCIÓN 4 - LIGA 1 MAX": "https://embed.saohgdassregions.com/embed/liga1max.php",
+        "OPCIÓN 5 - LIGA 1 MAX": "https://stream-xhd.com/live1.php?stream=liga1max"
+    },
+    "ESPN 4": {
+        "OPCIÓN 1 - ESPN 4": "https://la18hd.su/vivo/canales.php?stream=espn4",
+        "OPCIÓN 2 - ESPN 4": "https://streamtp-golden1.click/global1.php?stream=espn4",
+        "OPCIÓN 3 - ESPN 4": "https://embed.saohgdassregions.com/embed/espn4.php",
+        "OPCIÓN 4 - ESPN 4": "https://stream-xhd.com/live1.php?stream=espn4",
+        "OPCIÓN 5 - ESPN 4 MX": "https://la18hd.su/vivo/canales.php?stream=espn4mx",
+        "OPCIÓN 6 - ESPN 4 MX": "https://embed.saohgdassregions.com/embed/espn4mexico.php",
+        "OPCIÓN 7 - ESPN 4 MX": "https://stream-xhd.com/live1.php?stream=espn4mx"
+    },
+    "TNT Sports Chile": {
+        "OPCIÓN 1 - TNT Sports Chile": "https://la18hd.su/vivo/canales.php?stream=tntsportschile",
+        "OPCIÓN 2 - TNT Sports Chile": "https://streamtp-golden1.click/global1.php?stream=tntsportschile",
+        "OPCIÓN 3 - TNT Sports Chile": "https://streamx-hd.com/live1.php?stream=tntsportschile"
+    },
+    "": {
+        "OPCIÓN 1 - EL GOURMET": "https://embed.saohgdasregions.fun/embed/elgourmet.php"
+    },
+    "ESPN": {
+        "OPCIÓN 1": "https://la18hd.su/vivo/canales.php?stream=espn",
+        "OPCIÓN 2": "https://streamtp-golden1.click/global1.php?stream=espn",
+        "OPCIÓN 3": "https://embed.saohgdassregions.com/embed/espnar.php",
+        "OPCIÓN 4": "https://stream-xhd.com/live1.php?stream=espn"
+    },
+    "DSports": {
+        "OPCIÓN 1 - DirecTV Sports": "https://la18hd.su/vivo/canales.php?stream=dsports",
+        "OPCIÓN 2 - DirecTV Sports": "https://stream-xhd.com/live1.php?stream=dsports",
+        "OPCIÓN 3 - DirecTV Sports": "https://embed.saohgdassregions.com/embed/directvsports.php"
+    },
+    "TyC Sports": {
+        "OPCIÓN 1 - TyC Sports": "https://la18hd.su/vivo/canales.php?stream=tycsports",
+        "OPCIÓN 2 - TyC Sports": "https://streamtp-golden1.click/global1.php?stream=tyc",
+        "OPCIÓN 3 - TyC Sports": "https://embed.saohgdassregions.com/embed/tycsports.php",
+        "OPCIÓN 4 - TyC Sports": "https://stream-xhd.com/live1.php?stream=tycsports"
+    },
+    "DirecTV Sports 2": {
+        "OPCIÓN 1 - DirecTV Sports 2": "https://la18hd.su/vivo/canales.php?stream=dsports2",
+        "OPCIÓN 2 - DirecTV Sports 2": "https://streamtp-golden1.click/global1.php?stream=dsports2",
+        "OPCIÓN 3 - DirecTV Sports 2": "https://embed.saohgdassregions.com/embed/directvsports2.php",
+        "OPCIÓN 4 - DirecTV Sports 2": "https://stream-xhd.com/live1.php?stream=dsports2"
+    },
+    "ESPN Premium": {
+        "OPCIÓN 1 - ESPN PREMIUM": "https://la18hd.su/vivo/canales.php?stream=espnpremium",
+        "OPCIÓN 2 - ESPN PREMIUM": "https://streamtp-golden1.click/global1.php?stream=espnpremium",
+        "OPCIÓN 3 - ESPN PREMIUM": "https://embed.saohgdassregions.com/embed/espnpremiumar.php",
+        "OPCIÓN 4 - ESPN PREMIUM": "https://stream-xhd.com/live1.php?stream=espnpremium"
+    },
+    "ESPN 3": {
+        "OPCIÓN 1 - ESPN 3": "https://la18hd.su/vivo/canales.php?stream=espn3",
+        "OPCIÓN 2 - ESPN 3": "https://streamtp-golden1.click/global1.php?stream=espn3",
+        "OPCIÓN 3 - ESPN 3": "https://embed.saohgdassregions.com/embed/espn3.php",
+        "OPCIÓN 4 - ESPN 3": "https://stream-xhd.com/live1.php?stream=espn3",
+        "OPCIÓN 5 - ESPN 3 MX": "https://la18hd.su/vivo/canales.php?stream=espn3mx",
+        "OPCIÓN 6 - ESPN 3 MX": "https://streamtp-golden1.click/global1.php?stream=espn3mx",
+        "OPCIÓN 7 - ESPN 3 MX": "https://embed.saohgdassregions.com/embed/espn3mexico.php",
+        "OPCIÓN 8 - ESPN 3 MX": "https://stream-xhd.com/live1.php?stream=espn3mx"
+    },
+    "TNT Sports": {
+        "OPCIÓN 1 - TNT Sports Argentina": "https://la18hd.su/vivo/canales.php?stream=tntsports",
+        "OPCIÓN 2 - TNT Sports Argentina": "https://streamtp-golden1.click/global1.php?stream=tntsports",
+        "OPCIÓN 3 - TNT Sports Argentina": "https://embed.saohgdassregions.com/embed/tntsportsar.php",
+        "OPCIÓN 4 - TNT Sports Argentina": "https://stream-xhd.com/live1.php?stream=tntsports"
+    },
+    "FOX SPORTS": {
+        "OPCIÓN 1 - FOX SPORTS AR": "https://la18hd.su/vivo/canales.php?stream=foxsports",
+        "OPCIÓN 2 - FOX SPORTS AR": "https://streamtp-golden1.click/global1.php?stream=fox1ar",
+        "OPCIÓN 3 - FOX SPORTS AR": "https://embed.saohgdassregions.com/embed/foxsports.php",
+        "OPCIÓN 4 - FOX SPORTS AR": "https://stream-xhd.com/live1.php?stream=fox1ar",
+        "OPCIÓN 1 - FOX SPORTS MX": "https://la18hd.su/vivo/canales.php?stream=foxsportsmx",
+        "OPCIÓN 2 - FOX SPORTS MX": "https://streamtp-golden1.click/global1.php?stream=foxsportsmx",
+        "OPCIÓN 3 - FOX SPORTS MX": "https://embed.saohgdassregions.com/embed/foxsportsmexico.php",
+        "OPCIÓN 1 - FOX SPORTS USA": "https://la18hd.su/vivo/canales.php?stream=foxsports1_usa",
+        "OPCIÓN 2 - FOX SPORTS USA": "https://streamtp-golden1.click/global1.php?stream=fox_1_usa"
+    },
+    "FOX SPORTS 2": {
+        "OPCIÓN 1 - FOX SPORTS 2 AR": "https://la18hd.su/vivo/canales.php?stream=foxsports2",
+        "OPCIÓN 2 - FOX SPORTS 2 AR": "https://streamtp-golden1.click/global1.php?stream=fox2ar",
+        "OPCIÓN 3 - FOX SPORTS 2 AR": "https://embed.saohgdassregions.com/embed/foxsports2.php",
+        "OPCIÓN 4 - FOX SPORTS 2 AR": "https://stream-xhd.com/live1.php?stream=fox2ar",
+        "OPCIÓN 1 - FOX SPORTS 2 MX": "https://la18hd.su/vivo/canales.php?stream=foxsports2mx",
+        "OPCIÓN 2 - FOX SPORTS 2 MX": "https://embed.saohgdassregions.com/embed/foxsports2mexico.php",
+        "OPCIÓN 3 - FOX SPORTS 2 MX": "https://streamtp-golden1.click/global1.php?stream=foxsports2mx",
+        "OPCIÓN 1 - FOX SPORTS 2 USA": "https://la18hd.su/vivo/canales.php?stream=foxsports2_usa",
+        "OPCIÓN 2 - FOX SPORTS 2 USA": "https://streamtp-golden1.click/global1.php?stream=fox_2_usa"
+    },
+    "FOX SPORTS 3": {
+        "OPCIÓN 1 - FOX SPORTS 3 AR": "https://la18hd.su/vivo/canales.php?stream=foxsports3",
+        "OPCIÓN 2 - FOX SPORTS 3 AR": "https://streamtp-golden1.click/global1.php?stream=fox3ar"
+    },
+    "ESPN 5": {
+        "OPCIÓN 1 - ESPN 5": "https://la18hd.su/vivo/canales.php?stream=espn5",
+        "OPCIÓN 2 - ESPN 5": "https://streamtp-golden1.click/global1.php?stream=espn5",
+        "OPCIÓN 3 - ESPN 5": "https://embed.saohgdassregions.com/embed/espn5.php",
+        "OPCIÓN 4 - ESPN 5": "https://stream-xhd.com/live1.php?stream=espn5",
+        "OPCIÓN 4 - ESPN 5 MX": "https://embed.saohgdassregions.com/embed/espn5mexico.php"
+    },
+    "ESPN 6": {
+        "OPCIÓN 1 - ESPN 6": "https://la18hd.su/vivo/canales.php?stream=espn6",
+        "OPCIÓN 2 - ESPN 6": "https://streamtp-golden1.click/global1.php?stream=espn6",
+        "OPCIÓN 3 - ESPN 6": "https://embed.saohgdassregions.com/embed/espn6.php",
+        "OPCIÓN 4 - ESPN 6": "https://stream-xhd.com/live1.php?stream=espn6"
+    },
+    "ESPN 7": {
+        "OPCIÓN 1 - ESPN 7": "https://la18hd.su/vivo/canales.php?stream=espn7",
+        "OPCIÓN 2 - ESPN 7": "https://streamtp-golden1.click/global1.php?stream=espn7",
+        "OPCIÓN 3 - ESPN 7": "https://embed.saohgdassregions.com/embed/espn7.php",
+        "OPCIÓN 4 - ESPN 7": "https://stream-xhd.com/live1.php?stream=espn7"
+    },
+    "Win Sports Plus +": {
+        "OPCIÓN 1 - Win Sports Plus": "https://la18hd.su/vivo/canales.php?stream=winsportsplus",
+        "OPCIÓN 2 - Win Sports Plus": "https://streamtp-golden1.click/global1.php?stream=winplus",
+        "OPCIÓN 3 - Win Sports Plus": "https://la18hd.su/vivo/canales.php?stream=winsports2",
+        "OPCIÓN 4 - Win Sports Plus": "https://streamtp-golden1.click/global1.php?stream=winplus2",
+        "OPCIÓN 5 - Win Sports Plus": "https://stream-xhd.com/live1.php?stream=winplus"
+    },
+    "WIN SPORTS": {
+        "OPCIÓN 1 - WIN SPORTS": "https://la18hd.su/vivo/canales.php?stream=winsports",
+        "OPCIÓN 2 - WIN SPORTS": "https://streamtp-golden1.click/global1.php?stream=winsports",
+        "OPCIÓN 3 - WIN SPORTS": "https://stream-xhd.com/live1.php?stream=winsports"
+    },
+    "DirecTV Sports Plus +": {
+        "OPCIÓN 1 - DirecTV Sports Plus +": "https://la18hd.su/vivo/canales.php?stream=dsportsplus",
+        "OPCIÓN 2 - DirecTV Sports Plus +": "https://streamtp-golden1.click/global1.php?stream=dsportsplus",
+        "OPCIÓN 3 - DirecTV Sports Plus +": "https://embed.saohgdassregions.com/embed/directvsportsplus.php",
+        "OPCIÓN 4 - DirecTV Sports Plus +": "https://stream-xhd.com/live1.php?stream=dsportsplus"
+    },
+    "Caracol TV": {
+        "OPCIÓN 1 - Caracol TV": "https://la18hd.su/vivo/canales.php?stream=caracol",
+        "OPCIÓN 2 - Caracol TV": "https://embed.saohgdassregions.com/embed/caracol.php"
+    },
+    "Telemundo": {
+        "OPCIÓN 1 - Telemundo": "https://la18hd.su/vivo/canales.php?stream=telemundo",
+        "OPCIÓN 2 - Telemundo": "https://stream-xhd.com/live1.php?stream=telemundo",
+        "OPCIÓN 3 - Telemundo": "https://streamtp-golden1.click/global1.php?stream=telemundo",
+        "OPCIÓN 4 - Telemundo Miami": "https://embed.saohgdassregions.com/embed/telemundo51.php",
+        "OPCIÓN 5 - Telemundo Puerto Rico": "https://embed.saohgdassregions.com/embed/telemundopuertorico.php"
+    },
+    "Telefe": {
+        "OPCIÓN 1 - Telefe": "https://la18hd.su/vivo/canales.php?stream=telefe",
+        "OPCIÓN 2 - Telefe": "https://streamtp-golden1.click/global1.php?stream=telefe",
+        "OPCIÓN 3 - Telefe": "https://embed.saohgdassregions.com/embed/telefe.php",
+        "OPCIÓN 4 - Telefe": "https://stream-xhd.com/live1.php?stream=telefe"
+    },
+    "Movistar Deportes": {
+        "OPCIÓN 1 - Movistar Deportes Perú": "https://la18hd.su/vivo/canales.php?stream=movistar",
+        "OPCIÓN 2 - Movistar Deportes Perú": "https://embed.saohgdassregions.com/embed/movistardeportes.php",
+        "OPCIÓN 3 - Movistar Deportes Perú": "https://stream-xhd.com/live1.php?stream=movistar_deportes_peru",
+        "OPCIÓN 4 - Movistar La Liga": "https://embed.saohgdassregions.com/embed/movistarlaliga.php"
+    },
+    "América Televisión": {
+        "OPCIÓN 1 - América Televisión": "https://la18hd.su/vivo/canales.php?stream=americatv",
+        "OPCIÓN 2 - América Televisión": "https://stream-xhd.com/live1.php?stream=americatv",
+        "OPCIÓN 3 - América Televisión": "https://embed.saohgdassregions.com/embed/americatv.php"
+    },
+    "LATINA": {
+        "OPCIÓN 1 - LATINA": "https://jireh-5-hls-video-us-isp.dps.live/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8?dpssid=b2109516065069f19beeaeba7&sid=ba5t1l1xb2188362367069f19beeaeba6&ndvc=1",
+        "OPCIÓN 2 - LATINA": "https://redirector.rudo.video/hls-video/567ffde3fa319fadf3419efda25619456231dfea/latina/latina.smil/playlist.m3u8",
+        "OPCIÓN 3 - LATINA": "https://embed.saohgdassregions.com/embed/latina.php"
+    },
+    "RCN Colombia": {
+        "OPCIÓN 1 - RCN": "https://rcntv-rcnmas-1-us.roku.wurl.tv/playlist.m3u8",
+        "OPCIÓN 2 - RCN": "https://embed.saohgdassregions.com/embed/rcn.php"
+    },
+    "Azteca Deportes": {
+        "OPCIÓN 1 - Azteca Deportes": "https://embed.saohgdassregions.com/embed/aztecadeportes.php",
+        "OPCIÓN 2 - Azteca Deportes": "https://la18hd.su/vivo/canales.php?stream=azteca_deportes",
+        "OPCIÓN 3 - Azteca Deportes": "https://azt-mun.otteravision.com/azt/mun/mun.m3u8"
+    },
+    "DAZN 1": {
+        "OPCIÓN 1 - DAZN F1": "https://streamxhd.com/live1.php?stream=daznf1",
+        "OPCIÓN 2 - DAZN F1": "https://embed.saohgdassregions.com/embed/daznf1.php",
+        "OPCIÓN 3 - DAZN F1": "https://streamtp-golden1.click/global1.php?stream=daznf1",
+        "OPCIÓN 4 - DAZN 1": "https://la18hd.su/vivo/canales.php?stream=dazn1"
+    },
+    "DAZN F1": {
+        "OPCIÓN 1": "https://streamxhd.com/live1.php?stream=daznf1",
+        "OPCIÓN 2": "https://embed.saohgdassregions.com/embed/daznf1.php",
+        "OPCIÓN 3": "https://streamtp-golden1.click/global1.php?stream=daznf1"
+    },
+    "DAZN 2": {
+        "OPCIÓN 1 - DAZN 2": "https://la18hd.su/vivo/canales.php?stream=dazn2"
+    },
+    "DAZN La Liga": {
+        "OPCIÓN 1 - DAZN LaLiga": "https://la18hd.su/vivo/canales.php?stream=dazn_laliga",
+        "OPCIÓN 2 - DAZN LaLiga": "https://embed.saohgdasregions.fun/embed/daznlaliga.php"
+    },
+    "ECDF (El Canal Del Futbol)": {
+        "OPCIÓN 1 - ECDF": "https://la18hd.su/vivo/canales.php?stream=ecdf_ligapro"
+    },
+    "Sky Sports Bundesliga": {
+        "OPCIÓN 1 - Sky Sports Bundesliga 1": "https://la18hd.su/vivo/canales.php?stream=sky_bundesliga1",
+        "OPCIÓN 1 - Sky Sports Bundesliga 2": "https://la18hd.su/vivo/canales.php?stream=sky_bundesliga2",
+        "OPCIÓN 1 - Sky Sports Bundesliga 3": "https://la18hd.su/vivo/canales.php?stream=sky_bundesliga3",
+        "OPCIÓN 1 - Sky Sports Bundesliga 4": "https://la18hd.su/vivo/canales.php?stream=sky_bundesliga4",
+        "OPCIÓN 1 - Sky Sports Bundesliga 5": "https://la18hd.su/vivo/canales.php?stream=sky_bundesliga5"
+    },
+    "GOLTV": {
+        "OPCIÓN 1 - GOLTV": "https://la18hd.su/vivo/canales.php?stream=goltv"
+    },
+    "TV Pública": {
+        "OPCIÓN 1 - TV Pública": "https://la18hd.su/vivo/canales.php?stream=tvpublica",
+        "OPCIÓN 2 - TV Pública": "https://streamtp-golden1.click/global1.php?stream=tv_publica",
+        "OPCIÓN 3 - TV Pública": "https://embed.saohgdasregions.fun/embed/tvpublica.php"
+    },
+    "TUDN": {
+        "OPCIÓN 1 - TUDN USA": "https://la18hd.su/vivo/canales.php?stream=tudn",
+        "OPCIÓN 2 - TUDN USA": "https://streamtp-golden1.click/global1.php?stream=tudn_usa",
+        "OPCIÓN 3 - TUDN USA": "https://streamx-hd.com/live1.php?stream=tudn_usa",
+        "OPCIÓN 1 - TUDN MX": "https://la18hd.su/vivo/canales.php?stream=tudn_mx",
+        "OPCIÓN 2 - TUDN MX": "https://embed.saohgdassregions.com/embed/tudn.php",
+        "OPCIÓN 3 - TUDN MX": "https://streamtp-golden1.click/global1.php?stream=tudnmx"
+    },
+    "TV La 1": {},
+    "Panamericana TV": {
+        "OPCIÓN 1 - PANAMERICANA TV": "https://iblups.com/embed/panamericanape"
+    },
+    "ATV": {
+        "OPCIÓN 1 - ATV Perú": "https://embed.saohgdasregions.fun/embed/atv.php"
+    },
+    "Willax TV": {
+        "OPCIÓN 1 - Willax TV": "https://geo.dailymotion.com/player/x14ru6.html?video=xa63dow"
+    },
+    "Univisión": {
+        "OPCIÓN 1 - Univisión": "https://embed.saohgdassregions.com/embed/univision.php"
+    },
+    "GOLDEN": {
+        "OPCIÓN 1 - GOLDEN EDGE": "https://embed.saohgdassregions.com/embed/goldenedge.php",
+        "OPCIÓN 2 - GOLDEN PLUS": "https://embed.saohgdassregions.com/embed/goldenplus.php"
+    },
+    "TNT": {
+        "OPCIÓN 1 - TNT": "https://embed.saohgdasregions.fun/embed/tnt.php",
+        "OPCIÓN 2 - TNT": "https://embed.saohgdasregions.fun/embed2/tnt.php"
+    },
+    "SPACE": {
+        "OPCIÓN 1 - SPACE": "https://embed.saohgdassregions.com/embed/space.php"
+    },
+    "AMC": {
+        "OPCIÓN 1 - AMC": "https://embed.saohgdassregions.com/embed/amc.php"
+    },
+    "FX": {
+        "OPCIÓN 1 - FX": "https://embed.saohgdassregions.com/embed/fx.php"
+    },
+    "Warner TV": {
+        "OPCIÓN 1 - Warner TV": "https://embed.saohgdassregions.com/embed/warnerchannel.php"
+    },
+    "STAR CHANNEL": {
+        "OPCIÓN 1 - STAR CHANNEL": "https://embed.saohgdassregions.com/embed/starchannel.php"
+    },
+    "CINECANAL": {
+        "OPCIÓN 1 - CINECANAL": "https://embed.saohgdassregions.com/embed/cinecanal.php"
+    },
+    "CINEMAX": {
+        "OPCIÓN 1 - CINEMAX": "https://embed.saohgdassregions.com/embed/cinemax.php"
+    },
+    "Canal 5": {
+        "OPCIÓN 1 - CANAL 5 MX": "https://la18hd.su/vivo/canales.php?stream=canal5",
+        "OPCIÓN 2 - CANAL 5 MX": "https://streamtp-golden1.click/global1.php?stream=canal5mx",
+        "OPCIÓN 3 - CANAL 5 MX": "https://embed.saohgdassregions.com/embed/canal5.php",
+        "OPCIÓN 4 - CANAL 5 MX": "https://stream-xhd.com/live1.php?stream=canal5mx"
+    },
+    "Universal TV": {
+        "OPCIÓN 1 - Universal TV": "https://embed.saohgdassregions.com/embed/universaltv.php"
+    },
+    "TVC Deportes": {
+        "OPCIÓN 1 - TVC Deportes": "https://la18hd.su/vivo/canales.php?stream=tvc_deportes"
+    },
+    "Disney Channel": {
+        "OPCIÓN 1 - DISNEY CHANNEL": "https://embed.saohgdassregions.com/embed/disneychannel.php"
+    },
+    "Paramount": {
+        "OPCIÓN 1 | ESPAÑOL": "https://la18hd.su/vivo/canales.php?stream=paramount1",
+        "OPCIÓN 2 | ESPAÑOL": "https://streamtp-golden1.click/global1.php?stream=paramount1",
+        "OPCIÓN 4 | INGLÉS": "https://la18hd.su/vivo/canales.php?stream=paramount2",
+        "OPCIÓN 5 | INGLÉS": "https://streamtp-golden1.click/global1.php?stream=paramount2",
+        "OPCIÓN 7 | PORTUGUÉS": "https://la18hd.su/vivo/canales.php?stream=paramount3",
+        "OPCIÓN 8 | PORTUGUÉS": "https://streamtp-golden1.click/global1.php?stream=paramount3"
+    },
+    "VTV+": {
+        "OPCIÓN 1 - VTV PLUS": "https://la18hd.su/vivo/canales.php?stream=vtvplus"
+    },
+    "Hi! Sports TV": {
+        "OPCIÓN 1 - Hi! Sports TV": "https://la18hd.su/vivo/canales.php?stream=hisports"
+    },
+    "Caliente TV": {
+        "OPCIÓN 1 - Caliente TV": "https://la18hd.su/vivo/canales.php?stream=calientetv"
+    },
+    "Cartoon Network": {
+        "OPCIÓN 1 - Cartoon Network": "https://embed.saohgdassregions.com/embed/cartoonnetwork.php"
+    },
+    "Comedy Central": {
+        "OPCIÓN 1 - COMEDY CENTRAL": "https://embed.saohgdassregions.fun/embed/comedycentral.php"
+    },
+    "Universal Cinema": {
+        "OPCIÓN 1 - UNIVERSAL CINEMA": "https://embed.saohgdasregions.fun/embed/universalcinema.php"
+    },
+    "Studio Universal": {
+        "OPCIÓN 1 - STUDIO UNIVERSAL": "https://embed.saohgdassregions.com/embed/studiouniversal.php"
+    },
+    "NICK": {
+        "OPCIÓN 1 - NICK": "https://embed.saohgdasregions.fun/embed2/nick.php"
+    },
+    "Dpelícula": {
+        "OPCIÓN 1 - DPelícula": "https://embed.saohgdasregions.fun/embed/dpelicula.php"
+    },
+    "MTV": {
+        "OPCIÓN 1 - MTV": "https://embed.saohgdasregions.fun/embed/mtv.php"
+    },
+    "Discovery Kids": {
+        "OPCIÓN 1 - Discovery Kids": "https://embed.saohgdasregions.fun/embed/discoverykids.php"
+    },
+    "Tooncast": {
+        "OPCIÓN 1 - TOONCAST": "https://embed.saohgdassregions.com/embed/tooncast.php"
+    },
+    "ANIMAL PLANET": {
+        "OPCIÓN 1 - ANIMAL PLANET": "https://embed.saohgdasregions.fun/embed2/animalplanet.php"
+    },
+    "Discovery Channel": {
+        "OPCIÓN 1 - Discovery Channel": "https://embed.saohgdassregions.com/embed/discoverychannel.php"
+    },
+    "Discovery ID": {
+        "OPCIÓN 1 - ID Discovery": "https://embed.saohgdasregions.fun/embed/idinvestigation.php"
+    },
+    "Disney Jr.": {
+        "OPCIÓN 1 - DISNEY JR.": "https://embed.saohgdasregions.fun/embed/disneyjr.php",
+        "OPCIÓN 2 - DISNEY JR.": "https://embed.saohgdasregions.fun/embed2/disneyjr.php"
+    },
+    "Cartoonito": {
+        "OPCIÓN 1 - CARTOONITO": "https://embed.saohgdasregions.fun/embed/cartoonito.php"
+    },
+    "Azteca 7": {
+        "OPCIÓN 1 - AZTECA 7": "https://la18hd.su/vivo/canales.php?stream=azteca7",
+        "OPCIÓN 2 - AZTECA 7": "https://streamtp-golden1.click/global1.php?stream=azteca7",
+        "OPCIÓN 3 - AZTECA 7": "https://embed.saohgdassregions.com/embed/azteca7.php",
+        "OPCIÓN 4 - AZTECA 7": "https://stream-xhd.com/live1.php?stream=azteca7"
+    },
+    "National Geographic": {
+        "OPCIÓN 1 - NAT GEO": "https://embed.saohgdasregions.fun/embed/natgeo.php"
+    },
+    "beIN Sports": {
+        "OPCIÓN 1 - BEIN SPORTS": "https://la18hd.su/vivo/canales.php?stream=beinsportes",
+        "OPCIÓN 2 - BEIN SPORTS XTRA": "https://embed.saohgdasregions.fun/embed/beinsportsxtra.php",
+        "OPCIÓN 3 - BEIN SPORTS XTRA": "https://la18hd.su/vivo/canales.php?stream=beinsport_xtra_espanol"
+    },
+    "TNT Series": {
+        "OPCIÓN 1 - TNT Series": "https://embed.saohgdassregions.com/embed/tntseries.php"
+    },
+    "Discovery Home & Health (H&H)": {
+        "OPCIÓN 1 - H&H": "https://embed.saohgdasregions.fun/embed/discoveryhyh.php"
+    },
+    "TV PERU": {
+        "OPCIÓN 1": "https://cablered.iptvperu.tv:1936/cablered/tvperu_new/playlist.m3u8"
+    },
+    "EL TRECE": {
+        "OPCIÓN 1 - EL TRECE": "https://embed.saohgdassregions.com/embed/eltrece.php"
+    },
+    "UNICABLE": {
+        "OPCIÓN 1 - UNICABLE": "https://embed.saohgdasregions.fun/embed/unicable.php"
+    },
+    "Discovery World": {
+        "OPCIÓN 1 - Discovery World": "https://embed.saohgdasregions.fun/embed/discoveryworld.php"
+    },
+    "Azteca Uno": {
+        "OPCIÓN 1- AZTECA UNO": "https://embed.saohgdassregions.com/embed/aztecauno.php"
+    },
+    "Azteca Internacional": {
+        "OPCIÓN 1 - Azteca Internacional": "https://teleon.tv/embed/NGYzYzJhNzgyNjI0ZjNjMmEAOF/",
+        "OPCIÓN 2 - Azteca Internacional": "https://teleon.tv/embed/NGYzYzJhNzgyNjI0ZjNjMmEAOF/"
+    },
+    "beIN SPORTS XTRA": {
+        "OPCIÓN 1 - beIN SPORTS XTRA": "https://la18hd.su/vivo/canales.php?stream=beinsport_xtra_espanol",
+        "OPCIÓN 2 - beIN SPORTS XTRA": "https://embed.saohgdasregions.fun/embed/beinsportsxtra.php"
+    },
+    "Nat Geo Mundo": {
+        "OPCIÓN 1 - Nat Geo Mundo": "https://embed.saohgdassregions.com/embed/natgeo.php"
+    },
+    "Distrito Comedia": {
+        "OPCIÓN 1 - Distrito Comedia": "https://embed.saohgdasregions.fun/embed/distritocomedia.php"
+    },
+    "Golden Premier": {
+        "OPCIÓN 1 - Golden Premier": "https://embed.saohgdasregions.fun/embed/goldenpremier.php"
+    },
+    "Las Estrellas": {
+        "OPCIÓN 1 - Las Estrellas": "https://embed.saohgdassregions.com/embed/lasestrellas.php"
+    },
+    "Global Televisión": {
+        "OPCIÓN 1 - Global Televisión": "https://embed.saohgdasregions.fun/embed/globaltv.php"
+    },
+    "Tlnovelas": {
+        "OPCIÓN 1 - TLNOVELAS": "https://embed.saohgdassregions.com/embed/tlnovelas.php"
+    },
+    "Pasiones": {
+        "OPCIÓN 1 - PASIONES": "https://embed.saohgdassregions.com/embed/pasiones.php"
+    },
+    "TLC": {
+        "OPCIÓN 1 - TLC": "https://embed.saohgdasregions.fun/embed/discoverytlc.php"
+    },
+    "Discovery Theater": {
+        "OPCIÓN 1 - THEATHER": "https://embed.saohgdasregions.fun/embed/discoverytheater.php"
+    },
+    "MULTIPREMIER": {
+        "OPCIÓN 1 - MULTIPREMIER": "https://embed.saohgdassregions.com/embed/multipremier.php"
+    },
+    "ANTENA 3": {
+        "OPCIÓN 1 - ANTENA 3": "https://embed.saohgdassregions.com/embed/antena3.php"
+    },
+    "Movistar Liga de Campeones": {
+        "OPCIÓN 1 - M. Liga de Campeones": "https://embed.saohgdassregions.com/embed/movistarligadecampeones.php",
+        "OPCIÓN 2 - M. Liga de Campeones 1": "https://la18hd.su/vivo/canales.php?stream=ligadecampeones1",
+        "OPCIÓN 3 - M. Liga de Campeones 2": "https://la18hd.su/vivo/canales.php?stream=ligadecampeones2",
+        "OPCIÓN 4 - M. Liga de Campeones 3": "https://la18hd.su/vivo/canales.php?stream=ligadecampeones3"
+    },
+    "AZ CORAZÓN": {
+        "OPCIÓN 1 - AZ CORAZÓN": "https://azt-cz.otteravision.com/azt/cz/cz_720p_high.m3u8"
+    },
+    "TNT NOVELAS": {
+        "OPCIÓN 1 - TNT NOVELAS": "https://embed.saohgdasregions.fun/embed/tntnovelas.php"
+    },
+    "AZ CLICK": {
+        "OPCIÓN 1 - AZ CLICK": "https://amg00658-amg00658c59-canelatv-international-5440.playouts.now.amagi.tv/playlist/amg00658-canelamediafast-clictvaztecaappta-canelatvinternational/playlist.m3u8",
+        "OPCIÓN 2 - AZ CLICK": "https://embed.saohgdasregions.fun/embed/azclick.php"
+    },
+    "El Gourmet": {
+        "OPCIÓN 1 - EL GOURMET": "https://embed.saohgdasregions.fun/embed/elgourmet.php"
+    }
+}
