@@ -3,6 +3,9 @@ name: Extraer Iframes de Canales
 on:
   workflow_dispatch: # 👈 Esto crea el botón "Run workflow" manual
 
+permissions:
+  contents: write # 👈 ¡ESTO ES CLAVE! Permite al robot guardar archivos en tu repo
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
@@ -22,10 +25,13 @@ jobs:
           playwright install-deps
 
       - name: Ejecutar Scraper
-        run: python -u scraper.py # 👈 El "-u" hace que los logs se vean en tiempo real
+        run: python -u scraper.py
 
-      - name: Subir resultados como Artefacto
-        uses: actions/upload-artifact@v4
-        with:
-          name: resultados-iframes
-          path: canales_iframes.json
+      - name: Guardar resultados directamente en el repositorio
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add canales_iframes.json
+          # Solo hace commit si hay cambios, para evitar errores si se ejecuta dos veces seguidas
+          git diff --staged --quiet || git commit -m "Actualización automática de canales"
+          git push
