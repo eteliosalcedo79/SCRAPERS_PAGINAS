@@ -16,9 +16,14 @@ async def main():
         page = await context.new_page()
 
         print("Abriendo página principal...", flush=True)
-        await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=60000)
+        try:
+            # Usamos networkidle para esperar a que carguen los scripts que arman el acordeón
+            await page.goto(BASE_URL, wait_until="networkidle", timeout=60000)
+        except Exception as e:
+            print(f"Error cargando la página principal: {e}", flush=True)
+            await browser.close()
+            return
 
-        # Esperamos a que se carguen los eventos
         print("Buscando eventos...", flush=True)
         try:
             await page.wait_for_selector("article.tr-event", timeout=20000)
@@ -27,15 +32,17 @@ async def main():
             await browser.close()
             return
 
-        # Extraemos todos los eventos de una sola vez
+        # Extraemos todos los eventos
         eventos = await page.locator("article.tr-event").all()
         total_eventos = len(eventos)
         print(f"Se encontraron {total_eventos} eventos en total.", flush=True)
 
         for i, evento in enumerate(eventos):
-            # Extraer el título del evento
+            # Extraer el título del evento (usando text_content para evitar problemas de visibilidad)
             try:
-                titulo = (await evento.locator(".tr-event-title").inner_text()).strip()
+                titulo = (await evento.locator(".tr-event-title").text_content()).strip()
+                if not titulo:
+                    titulo = f"Evento_{i+1}"
             except:
                 titulo = f"Evento_{i+1}"
 
@@ -50,19 +57,23 @@ async def main():
             results[titulo] = {}
 
             for canal in canales:
-                nombre_canal = (await canal.inner_text()).strip()
-                url_canal = await canal.get_attribute("href")
-                if not url_canal.startswith("http"):
-                    url_canal = BASE_URL.rstrip("/") + url_canal
-
-                print(f"  -> Procesando canal: {nombre_canal}", flush=True)
-
                 try:
-                    # Navegamos a la página del canal para obtener el iframe
+                    # Usamos text_content() en lugar de inner_text()
+                    nombre_canal = (await canal.text_content()).strip()
+                    if not nombre_canal:
+                        nombre_canal = "Canal_Desconocido"
+                        
+                    url_canal = await canal.get_attribute("href")
+                    if not url_canal.startswith("http"):
+                        url_canal = BASE_URL.rstrip("/") + url_canal
+
+                    print(f"  -> Procesando canal: {nombre_canal}", flush=True)
+
+                    # Navegamos a la página del canal
                     await page.goto(url_canal, wait_until="domcontentloaded", timeout=30000)
                     
-                    # Esperamos a que aparezca el iframe
-                    await page.wait_for_selector("iframe", timeout=10000)
+                    # Esperamos a que el iframe esté adjunto en el DOM
+                    await page.wait_for_selector("iframe", state="attached", timeout=10000)
                     
                     iframe = page.locator("iframe").first
                     src = await iframe.get_attribute("src")
@@ -73,7 +84,7 @@ async def main():
                     print(f"     - Error con {nombre_canal}: {e}", flush=True)
                     results[titulo][nombre_canal] = None
                 
-                # Pequeña pausa para no saturar el servidor
+                # Pausa breve entre canales
                 await page.wait_for_timeout(1000)
 
         await browser.close()
