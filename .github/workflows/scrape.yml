@@ -1,0 +1,31 @@
+name: Extraer Iframes de Canales
+
+on:
+  workflow_dispatch: # 👈 Esto crea el botón "Run workflow" manual
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps
+
+      - name: Ejecutar Scraper
+        run: python scraper.py
+
+      - name: Subir resultados como Artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-iframes
+          path: canales_iframes.json
