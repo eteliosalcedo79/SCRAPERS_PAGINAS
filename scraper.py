@@ -2,7 +2,7 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-BASE_URL = "pirlotv.la/home.php"
+BASE_URL = "https://deporflix.pe/"
 OUTPUT_FILE = "resultados.json"  
 
 async def main():
@@ -15,7 +15,7 @@ async def main():
         )
         page = await context.new_page()
         
-        print("Abriendo página principal...", flush=True)
+        print("Abriendo pÃ¡gina principal...", flush=True)
         await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=30000)
         
         print("Buscando enlaces de canales...", flush=True)
@@ -26,7 +26,7 @@ async def main():
             await browser.close()
             return
 
-        # ✅ EXTRAEMOS TODOS LOS ENLACES DE UNA SOLA VEZ (Evita el timeout)
+        # âœ… EXTRAEMOS TODOS LOS ENLACES DE UNA SOLA VEZ (Evita el timeout)
         canal_links = await page.locator("a[href*='/canales/']").all()
         canales_a_procesar = []
         
@@ -49,14 +49,14 @@ async def main():
                 await page.goto(canal["href"], wait_until="domcontentloaded", timeout=30000)
                 
                 # Esperamos a que aparezcan las opciones
-                await page.wait_for_selector("text=/OPCIÓN/", timeout=10000)
+                await page.wait_for_selector("text=/OPCIÃ“N/", timeout=10000)
                 
-                opciones = await page.locator("text=/OPCIÓN/").all()
+                opciones = await page.locator("text=/OPCIÃ“N/").all()
                 print(f"  -> Encontradas {len(opciones)} opciones.", flush=True)
                 
                 results[canal['nombre']] = {}
                 for j in range(len(opciones)):
-                    btn = page.locator("text=/OPCIÓN/").nth(j)
+                    btn = page.locator("text=/OPCIÃ“N/").nth(j)
                     nombre_opcion = (await btn.inner_text()).strip()
                     
                     await btn.click(timeout=5000)
@@ -72,15 +72,15 @@ async def main():
                 print(f"  -> Error procesando {canal['nombre']}: {e}", flush=True)
                 continue
             
-            # Pequeña pausa de 1 segundo entre canal y canal para no saturar el servidor
+            # PequeÃ±a pausa de 1 segundo entre canal y canal para no saturar el servidor
             await page.wait_for_timeout(1000)
 
         await browser.close()
     
-    # 💾 Guardamos en resultados.json (esto borra lo anterior y escribe lo nuevo)
+    # ðŸ’¾ Guardamos en resultados.json (esto borra lo anterior y escribe lo nuevo)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
-    print(f"\n✅ Datos guardados en {OUTPUT_FILE}", flush=True)
+    print(f"\nâœ… Datos guardados en {OUTPUT_FILE}", flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
