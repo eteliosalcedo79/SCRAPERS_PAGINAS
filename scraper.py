@@ -1,51 +1,59 @@
-import asyncio
-from playwright.async_api import async_playwright
-
-BASE_URL = "https://futbol-libre.app/agenda"
-
-async def main():
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(
-            user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/120.0.0.0 Safari/537.36"),
-            viewport={"width": 1280, "height": 900},
-        )
-        page = await context.new_page()
-
-        print("Navegando...", flush=True)
-        await page.goto(BASE_URL, wait_until="networkidle", timeout=60000)
-
-        print("Esperando 15 s para JS...", flush=True)
-        await page.wait_for_timeout(15000)
-
-        title = await page.title()
-        print(f"TITLE: {title}", flush=True)
-
-        body_text = (await page.locator("body").inner_text())[:600]
-        print("---- BODY TEXT (primeros 600 chars) ----", flush=True)
-        print(body_text, flush=True)
-        print("---- FIN BODY ----", flush=True)
-
-        for sel in ["article", "li", ".event", ".match", "a", "div[class]",
-                    "[class*='event']", "[class*='match']", "[class*='partido']"]:
-            try:
-                n = await page.locator(sel).count()
-                print(f"  '{sel}' → {n}", flush=True)
-            except Exception as e:
-                print(f"  '{sel}' → error: {e}", flush=True)
-
-        # Guardar HTML completo
-        with open("debug_agenda.html", "w", encoding="utf-8") as f:
-            f.write(await page.content())
-        print("✅ debug_agenda.html guardado", flush=True)
-
-        # Guardar screenshot para ver visualmente qué cargó
-        await page.screenshot(path="debug_agenda.png", full_page=True)
-        print("✅ debug_agenda.png guardado", flush=True)
-
-        await browser.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+19s
+Run python -u scraper.py
+  
+Navegando...
+Esperando 15 s para JS...
+TITLE: Agenda Deportiva completa | Fútbol Libre
+---- BODY TEXT (primeros 600 chars) ----
+Fútbol Libre
+Inicio
+Agenda
+Canales
+Competiciones
+Agenda deportiva completa
+Todos los días disponibles, no solo el de hoy. Los horarios se muestran en tu zona horaria: UTC.
+Domingo, 4 de octubre de 2026
+Agenda Deportiva
+07:00
+F1 | GP de Azerbaiyán: Carrera
+0
+▼
+07:00
+F1 | GP de Azerbaiyán: Carrera | RACE HUB
+0
+▼
+07:00
+F1 | GP de Azerbaiyán: Carrera | Colapinto on Board
+0
+▼
+12:00
+LaLiga 2: Real Sociedad II vs Granada
+2
+▼
+12:30
+Eerste Divisie: VVV vs Roda JC
+3
+▼
+13:00
+Liga de Naciones de la UEFA: Azerbaiyán vs Lituania
+9
+▼
+13:00
+Primera División: Danubio vs Cerro Largo
+3
+▼
+13:00
+🇺🇾
+Segunda Divis
+---- FIN BODY ----
+  'article' → 0
+  'li' → 0
+  '.event' → 0
+  '.match' → 0
+  'a' → 277
+  'div[class]' → 213
+  '[class*='event']' → 204
+  '[class*='match']' → 68
+  '[class*='partido']' → 0
+✅ debug_agenda.html guardado
+✅ debug_agenda.png guardado
