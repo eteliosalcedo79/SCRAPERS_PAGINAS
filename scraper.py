@@ -2,131 +2,215 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-# URL de la página que vamos a scrapear
-BASE_URL = "https://tarjetaroja.love/"
-# Nombre del archivo JSON que se subirá automáticamente a GitHub
+BASE_URL = "https://futbol-libre.app/agenda"
 OUTPUT_FILE = "resultados.json"
+DEBUG = True  # si algo falla, guarda HTML para diagnosticar
+
+# Lista de posibles selectores de eventos (se prueba en orden)
+EVENT_SELECTORS = [
+    "article",
+    ".event",
+    ".match",
+    "[class*='event-item']",
+    "[class*='match-item']",
+    "[class*='evento']",
+    "li[class*='event']",
+]
+
+async def dump(page, name):
+    if DEBUG:
+        try:
+            with open(f"debug_{name}.html", "w", encoding="utf-8") as f:
+                f.write(await page.content())
+            print(f"      [debug] {name} guardado", flush=True)
+        except Exception:
+            pass
+
+async def find_event_selector(page):
+    """Devuelve el primer selector de eventos que encuentre elementos útiles."""
+    for sel in EVENT_SELECTORS:
+        try:
+            await page.wait_for_selector(sel, timeout=3000)
+            n = await page.locator(sel).count()
+            if n >= 2:  # al menos 2 eventos para evitar falsos positivos
+                print(f"Selector de eventos elegido: '{sel}' ({n} elementos)", flush=True)
+                return sel
+        except Exception:
+            continue
+    return None
 
 async def main():
     results = {}
 
     async with async_playwright() as p:
-        # Iniciamos el navegador en modo headless (sin interfaz gráfica)
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/120.0.0.0 Safari/537.36"),
+            viewport={"width": 1280, "height": 900},
         )
         page = await context.new_page()
 
-        print("Abriendo página principal...", flush=True)
+        print("Abriendo agenda...", flush=True)
         try:
-            # Usamos networkidle para esperar a que carguen los scripts del acordeón
             await page.goto(BASE_URL, wait_until="networkidle", timeout=60000)
         except Exception as e:
-            print(f"Error cargando la página principal: {e}", flush=True)
+            print(f"Error cargando agenda: {e}", flush=True)
             await browser.close()
             return
 
-        # --- Verificación de bloqueo por Cloudflare ---
+        # Cloudflare
         content = await page.content()
-        if "Just a moment" in content or "cf-challenge" in content or "Cloudflare" in content:
-            print("⚠️ ALERTA: GitHub Actions ha sido bloqueado por Cloudflare.", flush=True)
-            print("Solución: Ejecuta el script localmente en tu PC o usa un Proxy Residencial.", flush=True)
-            await browser.close()
-            return
-        # -----------------------------------------------
-
-        print("Buscando eventos...", flush=True)
-        try:
-            await page.wait_for_selector("article.tr-event", timeout=20000)
-        except Exception as e:
-            print(f"No se encontraron eventos. Error: {e}", flush=True)
+        if "Just a moment" in content or "cf-challenge" in content:
+            print("⚠️ Bloqueado por Cloudflare.", flush=True)
+            await dump(page, "cloudflare")
             await browser.close()
             return
 
-        # Contamos cuántos eventos hay en total
-        total_eventos = await page.locator("article.tr-event").count()
-        print(f"Se encontraron {total_eventos} eventos en total.", flush=True)
+        event_sel = await find_event_selector(page)
+        if not event_sel:
+            print("❌ No se detectó el selector de eventos.", flush=True)
+            await dump(page, "agenda_fail")
+            await browser.close()
+            return
 
-        for i in range(total_eventos):
-            # Re-consultamos el evento en cada iteración para evitar elementos obsoletos
-            evento = page.locator("article.tr-event").nth(i)
-            
-            # Extraer el título del evento
+        total = await page.locator(event_sel).count()
+        print(f"Total eventos: {total}", flush=True)
+
+        for i in range(total):
+            evento = page.locator(event_sel).nth(i)
+
+            # Título (primera línea de texto no vacía)
             try:
-                titulo_elem = evento.locator(".tr-event-title")
-                if await titulo_elem.count() > 0:
-                    titulo = (await titulo_elem.text_content()).strip()
-                else:
-                    titulo = f"Evento_{i+1}"
-            except:
+                texto = (await evento.inner_text()).strip()
+                titulo = next((l.strip() for l in texto.split("\n") if l.strip()), f"Evento_{i+1}")
+            except Exception:
                 titulo = f"Evento_{i+1}"
 
-            print(f"\n[{i+1}/{total_eventos}] Procesando: {titulo}", flush=True)
+            print(f"\n[{i+1}/{total}] {titulo}", flush=True)
+            results.setdefault(titulo, {})
 
-            # Contamos cuántos canales tiene este evento específico
-            canales_locator = evento.locator(".tr-event-channel")
-            canales_count = await canales_locator.count()
-            
-            if canales_count == 0:
-                print(f"  -> No se encontraron canales para este evento.", flush=True)
+            # 1) Abrir acordeón
+            try:
+                await evento.scroll_into_view_if_needed()
+                await evento.click()
+                await page.wait_for_timeout(1200)
+            except Exception as e:
+                print(f"  ⚠️ No se pudo abrir el acordeón: {e}", flush=True)
                 continue
 
-            results[titulo] = {}
-
-            for j in range(canales_count):
+            # 2) Localizar "Abrir partido"
+            abrir = None
+            for estrategia in [
+                lambda: page.locator("text=Abrir partido").first,
+                lambda: page.locator("a:has-text('Abrir partido')").first,
+                lambda: page.locator("button:has-text('Abrir partido')").first,
+                lambda: page.locator("[href*='partido'], [href*='canal']").first,
+            ]:
                 try:
-                    # Re-consultamos el canal específico en cada iteración
-                    canal = canales_locator.nth(j)
-                    
-                    # Esperamos a que el canal esté adjunto al DOM
-                    await canal.wait_for(state="attached", timeout=5000)
-                    
-                    # Usamos text_content() para leer el nombre aunque esté oculto en el acordeón
-                    nombre_canal = (await canal.text_content()).strip()
-                    if not nombre_canal:
-                        nombre_canal = f"Canal_{j+1}"
-                        
-                    url_canal = await canal.get_attribute("href")
-                    if not url_canal.startswith("http"):
-                        url_canal = BASE_URL.rstrip("/") + url_canal
+                    cand = estrategia()
+                    if await cand.count() > 0:
+                        abrir = cand
+                        break
+                except Exception:
+                    continue
 
-                    print(f"  -> Procesando canal: {nombre_canal}", flush=True)
+            if abrir is None:
+                print("  ⚠️ No se encontró 'Abrir partido'.", flush=True)
+                await dump(page, f"acordeon_{i+1}_fail")
+                continue
 
-                    # Navegamos a la página del canal
-                    await page.goto(url_canal, wait_until="domcontentloaded", timeout=30000)
-                    
-                    # Esperamos a que el iframe esté adjunto
-                    await page.wait_for_selector("iframe", state="attached", timeout=10000)
-                    
-                    iframe = page.locator("iframe").first
+            # 3) Abrir en pestaña nueva
+            try:
+                async with context.expect_page(timeout=15000) as info:
+                    await abrir.click()
+                partido = await info.value
+                await partido.wait_for_load_state("domcontentloaded", timeout=30000)
+                await partido.wait_for_timeout(3000)
+            except Exception as e:
+                print(f"  ⚠️ No se abrió pestaña nueva: {e}", flush=True)
+                continue
+
+            # 4) Esperar iframe
+            try:
+                await partido.wait_for_selector("iframe", state="attached", timeout=15000)
+            except Exception as e:
+                print(f"  ⚠️ Sin iframe: {e}", flush=True)
+                await dump(partido, f"partido_{i+1}_fail")
+                await partido.close()
+                await page.reload(wait_until="domcontentloaded")
+                await page.wait_for_selector(event_sel, timeout=15000)
+                continue
+
+            # 5) Botones de canal: probar varios selectores
+            canal_sel = None
+            for sel in ["button", "[role='button']", ".canal", "[class*='fuente']",
+                        "[class*='canal']", "[class*='channel']", "a[href*='canal']"]:
+                try:
+                    n = await partido.locator(sel).count()
+                    # Filtramos: queremos >=2 botones (Fuente 1, Fuente 2...)
+                    if n >= 2:
+                        canal_sel = sel
+                        print(f"  Selector de canales: '{sel}' ({n} botones)", flush=True)
+                        break
+                except Exception:
+                    continue
+
+            if canal_sel is None:
+                print("  ⚠️ No se detectaron botones de canal.", flush=True)
+                await dump(partido, f"partido_{i+1}_sin_canales")
+                await partido.close()
+                await page.reload(wait_until="domcontentloaded")
+                await page.wait_for_selector(event_sel, timeout=15000)
+                continue
+
+            canales = partido.locator(canal_sel)
+            n_canales = await canales.count()
+
+            for k in range(n_canales):
+                try:
+                    canal = partido.locator(canal_sel).nth(k)
+                    nombre = (await canal.inner_text()).strip() or f"Canal_{k+1}"
+                    # Filtrar botones que no son canales reales
+                    if nombre.lower() in ("abrir partido", "recargar", ""):
+                        continue
+
+                    print(f"     - {nombre}", flush=True)
+                    await canal.click()
+                    await partido.wait_for_timeout(2500)
+
+                    # Releemos el iframe tras el clic
+                    iframe = partido.locator("iframe").first
                     src = await iframe.get_attribute("src")
-                    
-                    results[titulo][nombre_canal] = src
-                    print(f"     - {nombre_canal}: OK", flush=True)
-
-                    # Regresamos a la página principal para el siguiente canal
-                    await page.go_back(wait_until="domcontentloaded")
-                    # Esperamos a que los eventos se vuelvan a cargar
-                    await page.wait_for_selector("article.tr-event", timeout=10000)
-
+                    results[titulo][nombre] = src
+                    print(f"       → {src}", flush=True)
                 except Exception as e:
-                    print(f"     - Error con {nombre_canal}: {e}", flush=True)
-                    results[titulo][nombre_canal] = None
-                    
-                    # Si hay un error, intentamos volver a la página principal para no quedar atascados
+                    print(f"       ⚠️ {e}", flush=True)
                     try:
-                        await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=30000)
-                        await page.wait_for_selector("article.tr-event", timeout=10000)
-                    except:
+                        results[titulo][nombre] = None
+                    except Exception:
                         pass
+
+            # 6) Cerrar pestaña del partido y volver
+            try:
+                await partido.close()
+            except Exception:
+                pass
+
+            try:
+                await page.reload(wait_until="domcontentloaded")
+                await page.wait_for_selector(event_sel, timeout=15000)
+            except Exception:
+                await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=30000)
+                await page.wait_for_selector(event_sel, timeout=15000)
 
         await browser.close()
 
-    # Guardamos los resultados en el archivo JSON
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
-    print(f"\n✅ Datos guardados en {OUTPUT_FILE}", flush=True)
+    print(f"\n✅ Guardado en {OUTPUT_FILE}", flush=True)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
