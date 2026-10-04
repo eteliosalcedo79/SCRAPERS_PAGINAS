@@ -2,7 +2,7 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-BASE_URL = "https://deporflix.pe/"
+BASE_URL = "pirlotv.la/home.php"
 OUTPUT_FILE = "resultados.json"  
 
 async def main():
