@@ -2,85 +2,83 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-BASE_URL = "https://deporflix.pe/"
-OUTPUT_FILE = "resultados.json"  
+CANAL_URL   = "https://deporflix.pe/canales/space"
+OUTPUT_FILE = "resultados.json"
+
+# Selector que apunta a los botones reales de opción, no a sus contenedores.
+# Ajustá si en el DOM se ven como <li>, <div role="button">, etc.
+OPCION_SELECTOR = "text=/^OPCIÓN\\s+\\d+/i"
 
 async def main():
     results = {}
-    
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/120.0.0.0 Safari/537.36")
         )
         page = await context.new_page()
-        
-        print("Abriendo pÃ¡gina principal...", flush=True)
-        await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=30000)
-        
-        print("Buscando enlaces de canales...", flush=True)
-        try:
-            await page.wait_for_selector("a[href*='/canales/']", timeout=15000)
-        except Exception as e:
-            print(f"No se encontraron canales. Error: {e}", flush=True)
-            await browser.close()
-            return
 
-        # âœ… EXTRAEMOS TODOS LOS ENLACES DE UNA SOLA VEZ (Evita el timeout)
-        canal_links = await page.locator("a[href*='/canales/']").all()
-        canales_a_procesar = []
-        
-        for link in canal_links:
-            nombre = (await link.inner_text()).strip()
-            href = await link.get_attribute("href")
-            if not href.startswith("http"):
-                href = BASE_URL.rstrip("/") + href
-            canales_a_procesar.append({"nombre": nombre, "href": href})
-            
-        total_canales = len(canales_a_procesar)
-        print(f"Se encontraron {total_canales} canales en total.", flush=True)
-        
-        # Iteramos sobre la lista que ya tenemos guardada
-        for i, canal in enumerate(canales_a_procesar): 
-            print(f"\n[{i+1}/{total_canales}] Procesando: {canal['nombre']}", flush=True)
-            
+        print("Abriendo canal...", flush=True)
+        await page.goto(CANAL_URL, wait_until="domcontentloaded", timeout=30000)
+
+        nombre_canal = "space"
+        results[nombre_canal] = {}
+
+        try:
+            # Esperamos que aparezcan las opciones (o al menos un iframe)
             try:
-                # Vamos directo a la URL del canal
-                await page.goto(canal["href"], wait_until="domcontentloaded", timeout=30000)
-                
-                # Esperamos a que aparezcan las opciones
-                await page.wait_for_selector("text=/OPCIÃ“N/", timeout=10000)
-                
-                opciones = await page.locator("text=/OPCIÃ“N/").all()
-                print(f"  -> Encontradas {len(opciones)} opciones.", flush=True)
-                
-                results[canal['nombre']] = {}
-                for j in range(len(opciones)):
-                    btn = page.locator("text=/OPCIÃ“N/").nth(j)
-                    nombre_opcion = (await btn.inner_text()).strip()
-                    
+                await page.wait_for_selector(OPCION_SELECTOR, timeout=20000)
+            except Exception:
+                # Si no hay lista de opciones, al menos intentamos el iframe directo
+                await page.wait_for_selector("iframe", timeout=15000)
+                src = await page.locator("iframe").first.get_attribute("src")
+                results[nombre_canal]["OPCIÓN ÚNICA"] = src
+                print(f"  -> Sin lista de opciones, iframe directo: {src}", flush=True)
+
+            opciones = await page.locator(OPCION_SELECTOR).all()
+            print(f"  -> Encontradas {len(opciones)} opciones.", flush=True)
+
+            ultimo_src = None
+
+            for j, btn in enumerate(opciones):
+                nombre_opcion = (await btn.inner_text()).strip()
+
+                try:
+                    # Clic sobre la opción
                     await btn.click(timeout=5000)
-                    await page.wait_for_timeout(2000) # Esperar 2 seg que cambie el iframe
-                    
+
+                    # Esperamos un poco a que cargue el nuevo iframe
+                    await page.wait_for_timeout(2500)
+
                     iframe = page.locator("iframe").first
                     src = await iframe.get_attribute("src")
-                    results[canal['nombre']][nombre_opcion] = src
-                    print(f"     - {nombre_opcion}: OK", flush=True)
-                    
-            except Exception as e:
-                # Si un canal falla, lo saltamos y seguimos con el siguiente
-                print(f"  -> Error procesando {canal['nombre']}: {e}", flush=True)
-                continue
-            
-            # PequeÃ±a pausa de 1 segundo entre canal y canal para no saturar el servidor
-            await page.wait_for_timeout(1000)
+
+                    # Guardamos bajo el nombre completo de la opción
+                    results[nombre_canal][nombre_opcion] = src
+
+                    if src == ultimo_src:
+                        print(f"     - {nombre_opcion}: (mismo src que la anterior)", flush=True)
+                    else:
+                        print(f"     - {nombre_opcion}: OK", flush=True)
+
+                    ultimo_src = src
+
+                except Exception as e:
+                    print(f"     - {nombre_opcion}: ERROR ({e})", flush=True)
+                    results[nombre_canal][nombre_opcion] = None
+
+        except Exception as e:
+            print(f"  -> Error procesando {nombre_canal}: {e}", flush=True)
+            results[nombre_canal]["error"] = str(e)
 
         await browser.close()
-    
-    # ðŸ’¾ Guardamos en resultados.json (esto borra lo anterior y escribe lo nuevo)
+
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
-    print(f"\nâœ… Datos guardados en {OUTPUT_FILE}", flush=True)
+    print(f"\n✅ Datos guardados en {OUTPUT_FILE}", flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
