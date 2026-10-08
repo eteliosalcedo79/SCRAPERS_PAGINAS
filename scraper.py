@@ -2,7 +2,7 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-CANAL_URL   = "https://deporflix.pe/canales/space"
+CANAL_URL   = "https://deporflix.pe/canales/tnt/"
 OUTPUT_FILE = "resultados.json"
 
 # Selector que apunta a los botones reales de opción, no a sus contenedores.
