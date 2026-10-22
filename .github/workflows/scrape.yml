@@ -1,10 +1,10 @@
 name: Scraper Universal
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # 👈 Esto crea el botón "Run workflow" manual
 
 permissions:
-  contents: write
+  contents: write # 👈 ¡ESTO ES CLAVE! Permite al robot guardar archivos en tu repo
 
 jobs:
   scrape:
@@ -27,20 +27,12 @@ jobs:
       - name: Ejecutar Scraper
         run: python -u scraper.py
 
-      # 👇 ESTE ES EL PASO NUEVO PARA DESCARGAR LOS ARCHIVOS DE ERROR
-      - name: Subir Artefactos de Debug
-        uses: actions/upload-artifact@v4
-        if: always() # Se ejecuta SIEMPRE, incluso si el scraper falla
-        with:
-          name: archivos-debug
-          path: |
-            error.png
-            debug.html
-
       - name: Guardar resultados directamente en el repositorio
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
+          # 👇 El comodín *.json sube CUALQUIER archivo JSON que se haya creado
           git add *.json
+          # Solo hace commit si hay cambios, para evitar errores si se ejecuta dos veces seguidas
           git diff --staged --quiet || git commit -m "Actualización automática de canales"
           git push
