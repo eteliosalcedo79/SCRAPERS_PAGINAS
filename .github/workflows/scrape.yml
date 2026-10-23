@@ -1,14 +1,16 @@
 name: Scraper Universal
 
 on:
-  workflow_dispatch: # 👈 Esto crea el botón "Run workflow" manual
+  workflow_dispatch: # 👈 Botón manual
 
 permissions:
-  contents: write # 👈 Permite al robot guardar archivos en tu repo
+  contents: write 
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    # Si tarda más de 10 minutos, se cancela solo para no gastar tiempo
+    timeout-minutes: 10 
     steps:
       - name: Clonar repositorio
         uses: actions/checkout@v4
@@ -20,9 +22,9 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          pip install -r requirements.txt
-          playwright install chromium
-          playwright install-deps
+          pip install playwright
+          # Este comando instala el navegador y sus dependencias de golpe
+          python -m playwright install --with-deps chromium
 
       - name: Ejecutar Scraper
         run: python -u scraper.py
@@ -32,14 +34,12 @@ jobs:
         with:
           name: html-debug
           path: debug_pagina.html
-          if-no-files-found: ignore # Si el script falla antes de crearlo, no da error
+          if-no-files-found: ignore 
 
       - name: Guardar resultados directamente en el repositorio
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          # 👇 Añadimos *.html para que también guarde el debug en el repo
           git add *.json *.html
-          # Solo hace commit si hay cambios
           git diff --staged --quiet || git commit -m "Actualización automática de canales y debug"
           git push
