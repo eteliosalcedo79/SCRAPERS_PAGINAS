@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # 👈 Esto crea el botón "Run workflow" manual
 
 permissions:
-  contents: write # 👈 ¡ESTO ES CLAVE! Permite al robot guardar archivos en tu repo
+  contents: write # 👈 Permite al robot guardar archivos en tu repo
 
 jobs:
   scrape:
@@ -27,12 +27,19 @@ jobs:
       - name: Ejecutar Scraper
         run: python -u scraper.py
 
+      - name: Subir archivo HTML de depuración (Para ver desde el celular)
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-debug
+          path: debug_pagina.html
+          if-no-files-found: ignore # Si el script falla antes de crearlo, no da error
+
       - name: Guardar resultados directamente en el repositorio
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          # 👇 El comodín *.json sube CUALQUIER archivo JSON que se haya creado
-          git add *.json
-          # Solo hace commit si hay cambios, para evitar errores si se ejecuta dos veces seguidas
-          git diff --staged --quiet || git commit -m "Actualización automática de canales"
+          # 👇 Añadimos *.html para que también guarde el debug en el repo
+          git add *.json *.html
+          # Solo hace commit si hay cambios
+          git diff --staged --quiet || git commit -m "Actualización automática de canales y debug"
           git push
