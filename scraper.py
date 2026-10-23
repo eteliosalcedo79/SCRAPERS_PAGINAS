@@ -5,85 +5,85 @@ from playwright.async_api import async_playwright
 BASE_URL = "https://pelisjuanita.com/tv/fox-sports"
 OUTPUT_FILE = "resultados_pelisjuanita.json"
 
-# ⚠️ Ajusta estos selectores según la estructura real de la página
-CHANNEL_CARD_SEL = "div.channel-card"      # Contenedor de cada canal (ej. "FOX SPORTS")
-SERVER_TAB_SEL   = "button.server-tab"    # Botones de "Servidor 1", "Servidor 2"...
-IFRAME_SEL       = "div.player iframe"     # Iframe del reproductor
-
 async def main():
-    resultados = {}
+    resultados = {"FOX SPORTS": {}} # Nombre del canal
 
     async with async_playwright() as p:
-        # headless=False para evadir protecciones anti-bot si es necesario
-        browser = await p.chromium.launch(headless=False)
+        # IMPORTANTE: headless=True es obligatorio para GitHub Actions
+        browser = await p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+            ]
+        )
         context = await browser.new_context(
             user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                         "AppleWebKit/537.36 (KHTML, like Gecko) "
                         "Chrome/120.0.0.0 Safari/537.36"),
             viewport={"width": 1280, "height": 900},
+            locale="es-ES",
         )
+        
+        # Ocultar que somos un bot
+        await context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => undefined
+            });
+        """)
+        
         page = await context.new_page()
 
         print(f"Abriendo {BASE_URL} ...", flush=True)
-        await page.goto(BASE_URL, wait_until="networkidle", timeout=60000)
-        await page.wait_for_timeout(3000)  # Espera extra para JS
+        try:
+            await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=60000)
+            await page.wait_for_timeout(5000) # Esperar a que cargue el JS
+        except Exception as e:
+            print(f"Error al cargar: {e}", flush=True)
+            await browser.close()
+            return
 
-        # 1️⃣ Extraer la lista de canales (si hay varios en la página)
-        # Si la página solo muestra un canal a la vez, omite este paso y usa un nombre fijo.
-        canales = await page.query_selector_all(CHANNEL_CARD_SEL)
-        if not canales:
-            print("⚠️ No se encontraron canales con el selector dado. Usando la página actual como único canal.", flush=True)
-            canales = [None]  # Tratar la página actual como un solo canal
+        # Buscar todos los elementos que digan "Servidor" (botones o pestañas)
+        # Playwright buscará cualquier elemento con ese texto.
+        print("Buscando botones de servidores...", flush=True)
+        
+        # Localizamos los botones por texto
+        servidores = page.locator("text=/Servidor \\d+/i")
+        count = await servidores.count()
+        
+        if count == 0:
+            print("⚠️ No se encontraron botones de servidor.", flush=True)
+        else:
+            print(f"✅ Se encontraron {count} servidores.", flush=True)
 
-        for idx, canal_el in enumerate(canales):
-            if canal_el:
-                # Si hay varios canales, haz clic en cada uno para cargar su reproductor
-                nombre_canal = (await canal_el.inner_text()).strip() or f"Canal_{idx+1}"
-                await canal_el.click()
-                await page.wait_for_timeout(2000)
-            else:
-                nombre_canal = "FOX SPORTS"  # Nombre fijo si solo hay un canal
+        for i in range(count):
+            servidor = servidores.nth(i)
+            nombre_servidor = await servidor.inner_text()
+            nombre_servidor = nombre_servidor.strip()
+            print(f"  -> Probando: {nombre_servidor}", flush=True)
 
-            print(f"\n📺 Canal: {nombre_canal}", flush=True)
-            resultados[nombre_canal] = {}
-
-            # 2️⃣ Esperar a que aparezcan las pestañas de servidor
             try:
-                await page.wait_for_selector(SERVER_TAB_SEL, timeout=10000)
-            except:
-                print("   ⚠️ No se encontraron pestañas de servidor.", flush=True)
-                continue
-
-            servidores = await page.query_selector_all(SERVER_TAB_SEL)
-            print(f"   🔗 {len(servidores)} servidores encontrados.", flush=True)
-
-            # 3️⃣ Iterar sobre cada servidor
-            for j, servidor_el in enumerate(servidores):
-                nombre_servidor = (await servidor_el.inner_text()).strip() or f"Servidor_{j+1}"
-                print(f"      -> {nombre_servidor}", flush=True)
-
-                try:
-                    await servidor_el.click()
-                    # Esperar a que el iframe se cargue o cambie su src
-                    await page.wait_for_selector(IFRAME_SEL, state="attached", timeout=8000)
-                    await page.wait_for_timeout(1500)  # Margen para que el JS actualice el src
-
-                    iframe_el = await page.query_selector(IFRAME_SEL)
-                    src = await iframe_el.get_attribute("src") if iframe_el else None
-
-                    if src:
-                        resultados[nombre_canal][nombre_servidor] = src
-                        print(f"         ✅ {src}", flush=True)
-                    else:
-                        print("         ❌ sin src", flush=True)
-                        resultados[nombre_canal][nombre_servidor] = None
-                except Exception as e:
-                    print(f"         ⚠️ Error: {e}", flush=True)
-                    resultados[nombre_canal][nombre_servidor] = None
+                await servidor.click()
+                # Esperar un poco a que el iframe se actualice
+                await page.wait_for_timeout(3000) 
+                
+                # Buscar el iframe en la página
+                iframe = page.locator("iframe").first
+                src = await iframe.get_attribute("src")
+                
+                if src:
+                    resultados["FOX SPORTS"][nombre_servidor] = src
+                    print(f"     ✅ {src}", flush=True)
+                else:
+                    print("     ❌ Iframe sin src", flush=True)
+                    resultados["FOX SPORTS"][nombre_servidor] = None
+            except Exception as e:
+                print(f"     ⚠️ Error al clicar: {e}", flush=True)
+                resultados["FOX SPORTS"][nombre_servidor] = None
 
         await browser.close()
 
-    # Guardar JSON con el mismo formato que el scraper original
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(resultados, f, indent=4, ensure_ascii=False)
     print(f"\n✅ Guardado en {OUTPUT_FILE}", flush=True)
