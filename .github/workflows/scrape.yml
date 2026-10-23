@@ -1,16 +1,14 @@
 name: Scraper Universal
 
 on:
-  workflow_dispatch: # 👈 Botón manual
+  workflow_dispatch:
 
 permissions:
-  contents: write 
+  contents: write
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    # Si tarda más de 10 minutos, se cancela solo para no gastar tiempo
-    timeout-minutes: 10 
     steps:
       - name: Clonar repositorio
         uses: actions/checkout@v4
@@ -20,21 +18,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Instalar dependencias
-        run: |
-          pip install playwright
-          # Este comando instala el navegador y sus dependencias de golpe
-          python -m playwright install --with-deps chromium
+      - name: Instalar curl_cffi directamente
+        run: pip install curl_cffi
 
       - name: Ejecutar Scraper
         run: python -u scraper.py
 
-      - name: Subir archivo HTML de depuración (Para ver desde el celular)
+      - name: Subir archivo HTML de depuración
         uses: actions/upload-artifact@v4
         with:
           name: html-debug
           path: debug_pagina.html
-          if-no-files-found: ignore 
+          if-no-files-found: ignore
 
       - name: Guardar resultados directamente en el repositorio
         run: |
