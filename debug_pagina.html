@@ -1,0 +1,488 @@
+<!DOCTYPE html><html lang="es"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PelisJuanita - Acceso</title>
+    <!-- Importar fuente manuscrita -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #0b0d10;
+            color: #ffffff;
+            height: 100vh; /* Cambiado de min-height a height fijo */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centra perfectamente horizontal y vertical sin desbordar */
+            position: relative;
+            overflow: hidden; /* <--- ESTO BLOQUEA Y OCULTA CUALQUIER SCROLL NO DESEADO */
+            padding: 10px;
+        }
+
+        /* Fondo cinematográfico con más visibilidad (menos viñeta y menor blur) */
+        .bg-collage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 90%;
+            background-image: 
+                radial-gradient(circle at center, rgba(11, 13, 16, 0.55) 0%, rgba(11, 13, 16, 0.82) 100%),
+                url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            filter: blur(2px); /* Menos desenfoque para que se vea más la imagen */
+            transform: scale(1.03);
+        }
+
+        /* Contenedor general que ocupa toda la pantalla */
+        .screen-container {
+            position: relative;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            /*min-height: 600px;*/
+            display: flex;
+            align-items: center;
+        }
+
+        /* ================= COLUMNA IZQUIERDA ================= */
+        .left-column {
+            width: 450px;
+            z-index: 2;
+            padding: 40px; /* Padding de 40px solicitado específicamente para esta columna */
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .brand-header svg {
+            width: 38px;
+            height: 38px;
+            fill: #e50914;
+        }
+
+        .brand-header h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+
+        .brand-header h1 span {
+            color: #e50914;
+        }
+
+        .brand-subtitle {
+            font-size: 0.95rem;
+            color: #ccc;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .feature-icon {
+            width: 34px;
+            height: 34px;
+            background: rgba(229, 9, 20, 0.15);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #e50914;
+        }
+
+        .feature-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .feature-text h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .feature-text p {
+            font-size: 0.78rem;
+            color: #aaa;
+        }
+
+        .experience-badge {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: #ff4d4d;
+            transform: rotate(-3deg);
+            text-shadow: 0 2px 10px rgba(229, 9, 20, 0.4);
+        }
+
+        /* ================= TARJETA CENTRAL (CENTRADORA ABSOLUTA) ================= */
+        .center-wrapper {
+            position: relative; /* Ya no necesita ser absolute si el body usa flexbox */
+            left: auto;
+            top: auto;
+            transform: none;
+            width: 100%;
+            max-width: 480px;
+            z-index: 10;
+        }
+
+        .modal-card {
+            background: linear-gradient(145deg, rgba(20, 23, 29, 0.92), rgba(14, 16, 20, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 35px 30px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(229, 9, 20, 0.2);
+            text-align: center;
+            width: 100%;
+            backdrop-filter: blur(12px);
+        }
+
+        .lock-icon-container {
+            width: 52px;
+            height: 52px;
+            background: rgba(229, 9, 20, 0.15);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            color: #e50914;
+        }
+
+        .lock-icon-container svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .modal-card h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .modal-card h2 span {
+            color: #e50914;
+        }
+
+        .modal-card .instructions {
+            font-size: 0.82rem;
+            color: #aaa;
+            margin-bottom: 22px;
+        }
+
+        .controls-container {
+            text-align: left;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #888;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border-radius: 25px;
+            border: 1px solid #444;
+            background-color: rgba(22, 25, 32, 0.8);
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #e50914;
+            background-color: rgba(29, 33, 43, 0.9);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+        }
+
+        .terms-box {
+            background-color: rgba(11, 13, 16, 0.85);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 12px 14px;
+            max-height: 125px;
+            overflow-y: auto;
+            font-size: 0.73rem;
+            line-height: 1.45;
+            color: #bbb;
+            margin-bottom: 18px;
+        }
+
+        .terms-box::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .terms-box::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 3px;
+        }
+
+        .terms-box h3 {
+            color: #fff;
+            font-size: 0.77rem;
+            margin-bottom: 6px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .terms-box h3 svg {
+            width: 13px;
+            height: 13px;
+            fill: #e50914;
+        }
+
+        .terms-box p {
+            margin-bottom: 6px;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #e50914, #b20710);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.92rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+        }
+
+        .btn-accept:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-accept:active {
+            transform: translateY(1px);
+        }
+
+        .btn-accept svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .security-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+            font-size: 0.73rem;
+            color: #888;
+        }
+
+        .security-footer svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        .error-msg {
+            background-color: rgba(255, 77, 77, 0.15);
+            border: 1px solid rgba(255, 77, 77, 0.4);
+            color: #ff4d4d;
+            font-size: 0.78rem;
+            padding: 7px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        /* ================= RESPONSIVE PARA MÓVILES ================= */
+        @media (max-width: 950px) {
+            body {
+                padding: 10px; /* Padding de 10px en móvil */
+            }
+            .left-column {
+                display: none; /* Se oculta la columna izquierda en móviles */
+            }
+            .center-wrapper {
+                position: relative;
+                left: auto;
+                top: auto;
+                transform: none;
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-collage"></div>
+
+    <div class="screen-container">
+        <!-- COLUMNA IZQUIERDA (Visible solo en escritorio con padding 40px) -->
+        <div class="left-column">
+            <div class="brand-header">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"></path></svg>
+                <h1>Pelis<span>Juanita</span></h1>
+            </div>
+            <p class="brand-subtitle">Tus películas y series favoritas,<br>en un solo lugar</p>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"></path></svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Películas</h3>
+                        <p>Estrenos, clásicos y mucho más</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"></path></svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Series</h3>
+                        <p>Tus historias favoritas, completas</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"></path></svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>TV en Vivo</h3>
+                        <p>Canales de todo el mundo</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"></path></svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Smart TV</h3>
+                        <p>Disfruta en todos tus dispositivos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="experience-badge">
+                ¡La mejor experiencia de entretenimiento!
+            </div>
+        </div>
+
+        <!-- TARJETA DE ACCESO CENTRADA EN PANTALLA -->
+        <div class="center-wrapper">
+            <div class="modal-card">
+                <div class="lock-icon-container" style="background: transparent; border: none; width: auto; height: auto;">
+                    <img src="https://pelisjuanita.com/movies/img/sin-episodio.png" alt="Logo PelisJuanita" style="width: 80px; height: 80px; object-fit: contain; display: block; margin: 0 auto;">
+                </div>
+                
+                <h2>Bienvenido a <span>PelisJuanita</span></h2>
+                <p class="instructions">Ingresa tu apodo para continuar</p>
+                
+                
+                <div class="controls-container">
+                    <form action="inicio.php" method="POST">
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                                </span>
+                                <input type="text" id="apodo" name="apodo" placeholder="Ej. JuanitoPelícula" required="" autofocus="" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="terms-box">
+                            <h3>
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"></path></svg>
+                                POLÍTICAS, TÉRMINOS Y CONDICIONES DE USO
+                            </h3>
+                            <p>El acceso y utilización de PelisJuanita implica la lectura, comprensión y aceptación de las presentes Políticas, Términos y Condiciones de Uso. En caso de no estar de acuerdo con alguna de sus disposiciones, el usuario deberá abstenerse de utilizar la plataforma.</p>
+                            <p>Para acceder a determinadas funciones de PelisJuanita, el usuario podrá identificarse mediante un apodo anónimo, un correo electrónico alternativo o Telegram, de acuerdo con las opciones disponibles. Estas alternativas tienen como finalidad permitir la identificación del usuario dentro de la plataforma, sin requerir información personal innecesaria. El usuario será responsable de la información que proporcione voluntariamente y del uso que realice de su cuenta, apodo o medio de identificación, quedando prohibida la utilización de identificadores destinados a suplantar deliberadamente la identidad de terceros.</p>
+                            <p>El usuario se compromete a utilizar PelisJuanita de forma lícita, responsable y conforme a la legislación vigente que resulte aplicable en su jurisdicción. Queda prohibido utilizar la plataforma para realizar actividades ilícitas, fraudulentas o abusivas, intentar vulnerar sus sistemas de seguridad, acceder sin autorización a cuentas, servidores o sistemas, alterar o interferir con su funcionamiento, introducir código malicioso, realizar ataques automatizados o ejecutar cualquier acción que pueda afectar la disponibilidad, integridad o seguridad de la plataforma.</p>
+                            <p>PelisJuanita puede proporcionar enlaces, referencias o accesos hacia sitios web, servidores, reproductores, plataformas o servicios operados por terceros. Dichos servicios son independientes de PelisJuanita y pueden encontrarse sujetos a sus propios términos, condiciones, políticas de privacidad y legislación. PelisJuanita no controla necesariamente el funcionamiento, disponibilidad, contenido o políticas de dichos servicios. La inclusión de un enlace no implica necesariamente una relación comercial, asociación, autorización o respaldo respecto del servicio externo.</p>
+                            <p>El usuario reconoce que determinados contenidos pueden encontrarse protegidos por derechos de autor, derechos conexos u otras normas de propiedad intelectual. La descarga, reproducción, distribución, almacenamiento o utilización de material protegido sin contar con la correspondiente autorización o derecho legal puede estar prohibida por la legislación aplicable. PelisJuanita no aloja intencionalmente archivos ni material protegido por derechos de autor en sus propios servidores. Cuando corresponda, la plataforma puede proporcionar referencias o enlaces hacia recursos alojados en servicios de terceros. El usuario será responsable de determinar si el acceso, reproducción, descarga o utilización de cualquier contenido al que acceda mediante dichos enlaces resulta legal en su jurisdicción.</p>
+                            <p>El usuario será exclusivamente responsable del uso que realice de la plataforma, de sus funciones y de los enlaces o servicios externos a los que acceda. PelisJuanita no será responsable por actos realizados por los usuarios que incumplan estas condiciones o la legislación aplicable.</p>
+                            <p>PelisJuanita procurará solicitar únicamente la información necesaria para proporcionar aquellas funciones que requieran identificación. El usuario deberá evitar proporcionar información personal sensible, confidencial o innecesaria mediante su apodo, perfil, comentarios, conversaciones u otros espacios disponibles en la plataforma. Los servicios externos utilizados para la autenticación o identificación pueden aplicar sus propias políticas de privacidad y tratamiento de datos.</p>
+                            <p>El usuario se compromete a no intentar acceder sin autorización a áreas restringidas, cuentas, bases de datos, sistemas, servidores o mecanismos de seguridad de PelisJuanita o de terceros relacionados con la plataforma. Cualquier vulnerabilidad o comportamiento que pueda comprometer la seguridad del sitio deberá ser comunicado por los canales habilitados, evitando su explotación o utilización indebida.</p>
+                            <p>PelisJuanita podrá limitar, suspender o impedir temporalmente el acceso a determinadas funciones cuando existan indicios de uso abusivo, fraudulento, automatizado, malicioso o contrario a estas políticas. Cuando resulte necesario para preservar la seguridad, estabilidad o integridad de la plataforma, determinadas medidas podrán aplicarse sin previo aviso.</p>
+                            <p>PelisJuanita no garantiza que la plataforma permanezca disponible de forma permanente, ininterrumpida o libre de errores. Pueden producirse interrupciones por mantenimiento, actualizaciones, problemas técnicos, fallos de servicios de terceros, circunstancias de fuerza mayor u otras causas ajenas al control de la plataforma.</p>
+                            <p>PelisJuanita podrá actualizar, modificar o ampliar estas políticas cuando resulte necesario para reflejar cambios en la plataforma, incorporar nuevas funciones, mejorar la seguridad o adaptarse a requisitos legales aplicables. Las modificaciones podrán ser publicadas o comunicadas mediante los medios disponibles en la plataforma.</p>
+                            <p>Al marcar la casilla correspondiente y continuar utilizando PelisJuanita, el usuario declara que ha leído, comprendido y aceptado las presentes Políticas, Términos y Condiciones de Uso. Asimismo, declara que utilizará la plataforma de manera responsable, respetará los derechos de terceros y cumplirá con las leyes y disposiciones aplicables en su jurisdicción.</p>
+                        </div>
+
+                        <button type="submit" class="btn-accept">
+                            Aceptar y Continuar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="security-footer">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"></path></svg>
+                    <span>Tu acceso es seguro y privado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;3e7cad3399c54b2ca5b70e6c8d97b16c&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4f3b7e6fdd01705',t:'MTc5Mjc4OTcyMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; visibility: hidden;"></iframe>
+</body></html>
