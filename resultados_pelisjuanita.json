@@ -1,3 +1,6 @@
 {
-    "FOX SPORTS": {}
+    "FOX SPORTS": {
+        "Reproductor_1": "ahora.php",
+        "Reproductor_2": "comments.php?url=general"
+    }
 }
