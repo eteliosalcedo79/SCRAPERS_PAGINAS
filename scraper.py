@@ -1,99 +1,92 @@
 import asyncio
 import json
-import re
 from playwright.async_api import async_playwright
 
-PELICULA_URL = "https://ganovideo.com/peliculas/hope-el-primer-impacto/"
-OUTPUT_FILE = "resultados_ganovideo.json"
+BASE_URL = "https://pelisjuanita.com/tv/fox-sports"
+OUTPUT_FILE = "resultados_pelisjuanita.json"
+
+# ⚠️ Ajusta estos selectores según la estructura real de la página
+CHANNEL_CARD_SEL = "div.channel-card"      # Contenedor de cada canal (ej. "FOX SPORTS")
+SERVER_TAB_SEL   = "button.server-tab"    # Botones de "Servidor 1", "Servidor 2"...
+IFRAME_SEL       = "div.player iframe"     # Iframe del reproductor
 
 async def main():
-    results = {}
-    
+    resultados = {}
+
     async with async_playwright() as p:
-        # Configuramos un navegador más "real" para evitar bloqueos
-        browser = await p.chromium.launch(headless=True)
+        # headless=False para evadir protecciones anti-bot si es necesario
+        browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            viewport={"width": 1280, "height": 800}
+            user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/120.0.0.0 Safari/537.36"),
+            viewport={"width": 1280, "height": 900},
         )
         page = await context.new_page()
-        
-        print(f"Abriendo: {PELICULA_URL}", flush=True)
-        
-        try:
-            # Esperamos a que la red se calme
-            await page.goto(PELICULA_URL, wait_until="networkidle", timeout=60000)
-            await page.wait_for_timeout(3000) # Pausa extra por si hay JS pesado
 
-            # Buscamos CUALQUIER elemento que contenga la palabra Película o Trailer (ignorando tildes/mayúsculas)
-            # Esto atrapará los botones sin importar si son <a>, <div> o <li>
-            patron_botones = re.compile(r'(Pel[ií]cula|Trailer|Opci[oó]n)', re.IGNORECASE)
-            botones = await page.locator("*", has_text=patron_botones).all()
-            
-            # Filtramos para quedarnos solo con los elementos más pequeños (los botones reales, no todo el contenedor)
-            botones_reales = []
-            for btn in botones:
-                texto = await btn.inner_text()
-                if 5 < len(texto.strip()) < 60: # Un botón no tiene un texto gigante
-                    botones_reales.append(btn)
-            
-            # Eliminamos duplicados (a veces el texto está en un <span> dentro de un <a>)
-            botones_unicos = []
-            textos_vistos = set()
-            for btn in botones_reales:
-                txt = (await btn.inner_text()).strip()
-                if txt not in textos_vistos:
-                    textos_vistos.add(txt)
-                    botones_unicos.append(btn)
+        print(f"Abriendo {BASE_URL} ...", flush=True)
+        await page.goto(BASE_URL, wait_until="networkidle", timeout=60000)
+        await page.wait_for_timeout(3000)  # Espera extra para JS
 
-            print(f"Se encontraron {len(botones_unicos)} botones de video.", flush=True)
-            
-            if not botones_unicos:
-                raise Exception("No se encontraron botones con los textos esperados.")
+        # 1️⃣ Extraer la lista de canales (si hay varios en la página)
+        # Si la página solo muestra un canal a la vez, omite este paso y usa un nombre fijo.
+        canales = await page.query_selector_all(CHANNEL_CARD_SEL)
+        if not canales:
+            print("⚠️ No se encontraron canales con el selector dado. Usando la página actual como único canal.", flush=True)
+            canales = [None]  # Tratar la página actual como un solo canal
 
-            for i, btn in enumerate(botones_unicos):
-                nombre = (await btn.inner_text()).strip().replace("\n", " ")
-                print(f"\n[{i+1}/{len(botones_unicos)}] Haciendo clic en: '{nombre}'", flush=True)
-                
-                try:
-                    # Hacemos scroll hacia el botón para asegurar que sea clickeable
-                    await btn.scroll_into_view_if_needed()
-                    await page.wait_for_timeout(500)
-                    
-                    # Clic forzado (por si hay algún anuncio transparente encima)
-                    await btn.click(force=True, timeout=5000)
-                    await page.wait_for_timeout(3000) # Esperar que el iframe cambie
-                    
-                    # Buscar el iframe del reproductor
-                    iframe = page.locator("iframe").first
-                    if await iframe.count() > 0:
-                        src = await iframe.get_attribute("src")
-                        results[nombre] = src
-                        print(f"  -> URL del Embed: {src}", flush=True)
-                    else:
-                        print("  -> No se encontró el iframe.", flush=True)
-                        
-                except Exception as e:
-                    print(f"  -> Error al hacer clic: {e}", flush=True)
-                    
-                await page.wait_for_timeout(1000)
+        for idx, canal_el in enumerate(canales):
+            if canal_el:
+                # Si hay varios canales, haz clic en cada uno para cargar su reproductor
+                nombre_canal = (await canal_el.inner_text()).strip() or f"Canal_{idx+1}"
+                await canal_el.click()
+                await page.wait_for_timeout(2000)
+            else:
+                nombre_canal = "FOX SPORTS"  # Nombre fijo si solo hay un canal
 
-        except Exception as e:
-            print(f"\n❌ ERROR GENERAL: {e}", flush=True)
-            print("Guardando captura de pantalla y HTML para depuración...", flush=True)
+            print(f"\n📺 Canal: {nombre_canal}", flush=True)
+            resultados[nombre_canal] = {}
+
+            # 2️⃣ Esperar a que aparezcan las pestañas de servidor
             try:
-                await page.screenshot(path="error.png", full_page=True)
-                with open("debug.html", "w", encoding="utf-8") as f:
-                    f.write(await page.content())
-                print("✅ Se ha guardado 'error.png' y 'debug.html'", flush=True)
-            except Exception as debug_error:
-                print(f"No se pudo guardar el debug: {debug_error}", flush=True)
-        finally:
-            await browser.close()
-    
+                await page.wait_for_selector(SERVER_TAB_SEL, timeout=10000)
+            except:
+                print("   ⚠️ No se encontraron pestañas de servidor.", flush=True)
+                continue
+
+            servidores = await page.query_selector_all(SERVER_TAB_SEL)
+            print(f"   🔗 {len(servidores)} servidores encontrados.", flush=True)
+
+            # 3️⃣ Iterar sobre cada servidor
+            for j, servidor_el in enumerate(servidores):
+                nombre_servidor = (await servidor_el.inner_text()).strip() or f"Servidor_{j+1}"
+                print(f"      -> {nombre_servidor}", flush=True)
+
+                try:
+                    await servidor_el.click()
+                    # Esperar a que el iframe se cargue o cambie su src
+                    await page.wait_for_selector(IFRAME_SEL, state="attached", timeout=8000)
+                    await page.wait_for_timeout(1500)  # Margen para que el JS actualice el src
+
+                    iframe_el = await page.query_selector(IFRAME_SEL)
+                    src = await iframe_el.get_attribute("src") if iframe_el else None
+
+                    if src:
+                        resultados[nombre_canal][nombre_servidor] = src
+                        print(f"         ✅ {src}", flush=True)
+                    else:
+                        print("         ❌ sin src", flush=True)
+                        resultados[nombre_canal][nombre_servidor] = None
+                except Exception as e:
+                    print(f"         ⚠️ Error: {e}", flush=True)
+                    resultados[nombre_canal][nombre_servidor] = None
+
+        await browser.close()
+
+    # Guardar JSON con el mismo formato que el scraper original
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4, ensure_ascii=False)
-    print(f"\n✅ Proceso terminado. Datos guardados en {OUTPUT_FILE}", flush=True)
+        json.dump(resultados, f, indent=4, ensure_ascii=False)
+    print(f"\n✅ Guardado en {OUTPUT_FILE}", flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
