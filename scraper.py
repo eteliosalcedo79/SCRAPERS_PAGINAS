@@ -11,49 +11,57 @@ async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=True, 
-            args=["--no-sandbox", "--disable-dev-shm-usage"]
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox", 
+                "--disable-dev-shm-usage",
+                "--disable-web-security"
+            ]
         )
         context = await browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            viewport={"width": 1280, "height": 900}
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            viewport={"width": 1280, "height": 900},
+            locale="es-ES"
         )
+        
+        # Camuflaje: Ocultar que somos un bot
+        await context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            window.chrome = { runtime: {} };
+        """)
+        
         page = await context.new_page()
 
         print(f"Abriendo {BASE_URL} ...", flush=True)
         try:
             await page.goto(BASE_URL, wait_until="domcontentloaded", timeout=60000)
             
-            # --- INICIO DE SESIÓN AUTOMÁTICO ---
+            # Esperamos hasta 20 segundos a que Cloudflare nos deje pasar y aparezca el login
+            print("Esperando a que Cloudflare nos deje pasar...", flush=True)
             try:
-                await page.wait_for_selector('input[name="apodo"]', timeout=5000)
-                print("🔒 Pantalla de acceso detectada. Ingresando apodo 'etelio'...", flush=True)
+                await page.wait_for_selector('input[name="apodo"]', timeout=20000)
                 
-                # Escribimos tu apodo
+                print("🔒 Ingresando apodo 'etelio'...", flush=True)
                 await page.fill('input[name="apodo"]', 'etelio')
-                # Hacemos clic en el botón de Aceptar y Continuar
                 await page.click('button[type="submit"]')
-                
-                # Esperamos a que cargue la página tras el login
                 await page.wait_for_load_state("networkidle", timeout=30000)
                 await page.wait_for_timeout(3000)
                 print("✅ Sesión iniciada.", flush=True)
                 
-                # Si después del login no nos lleva al canal, volvemos a ir
                 if "fox-sports" not in page.url:
-                    print("Navegando a la página del canal...", flush=True)
                     await page.goto(BASE_URL, wait_until="networkidle", timeout=30000)
                     await page.wait_for_timeout(3000)
-            except Exception:
-                print("ℹ️ No se requirió login (o ya estamos dentro).", flush=True)
-            # --- FIN DE SESIÓN AUTOMÁTICA ---
+                    
+            except Exception as e:
+                print("⚠️ Cloudflare nos bloqueó o el login cambió.", flush=True)
 
-            # Guardar el HTML para ver cómo es la página ya logueados
+            # Guardamos HTML por si acaso
             html = await page.content()
             with open("debug_pagina.html", "w", encoding="utf-8") as f:
                 f.write(html)
             print("✅ HTML guardado en debug_pagina.html", flush=True)
 
-            # Buscar los iframes
+            # Buscar iframes
             iframes = page.locator("iframe")
             count = await iframes.count()
             print(f"Se encontraron {count} iframes en la página.", flush=True)
@@ -62,17 +70,15 @@ async def main():
                 src = await iframes.nth(i).get_attribute("src")
                 if src:
                     nombre = f"Reproductor_{i+1}"
-                    print(f"✅ {nombre}: {src}", flush=True)
                     resultados["FOX SPORTS"][nombre] = src
 
         except Exception as e:
-            print(f"Error durante la ejecución: {e}", flush=True)
+            print(f"Error: {e}", flush=True)
         finally:
             await browser.close()
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(resultados, f, indent=4, ensure_ascii=False)
-    print(f"\n✅ Guardado en {OUTPUT_FILE}", flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
