@@ -27,19 +27,14 @@ def main():
 
     print("\n2. Buscando el bloque de servidores...")
 
-    # En Cuevana/Dooplay, los servidores suelen estar en una lista <ul> con id="playeroptionsul"
-    # o en elementos <li> con atributos data-post, data-nume, data-type.
-    
-    # Estrategia 1: Buscar todos los <li> que tengan data-post
+    # En Cuevana/Dooplay, los servidores suelen estar en elementos <li> con atributos data-post, data-nume, data-type.
     li_blocks = re.findall(r'(?s)<li[^>]*data-post=["\']([^"\']+)["\'][^>]*>.*?</li>', html)
     
-    # Si no encuentra el bloque exacto, buscamos de forma más amplia
     if not li_blocks:
         li_blocks = re.findall(r'(?s)<li[^>]*data-post=["\']([^"\']+)["\'][^>]*>', html)
 
     if not li_blocks:
         print("⚠️ No se encontraron atributos 'data-post'. Volcando HTML para revisión...")
-        # Buscamos la palabra "Latino" y mostramos un pedazo de texto alrededor
         match = re.search(r'(?s).{0,500}Latino.{0,500}', html, re.IGNORECASE)
         if match:
             print("👉 Encontramos esto cerca de 'Latino':")
@@ -50,12 +45,10 @@ def main():
 
     print(f"✅ Se encontraron {len(li_blocks)} botones de servidores en el HTML.")
 
-    # Estrategia 2: Extraer los datos de cada servidor y filtrar el Latino
-    # Usaremos una búsqueda más precisa de bloques <li>
+    # Extraer los datos de cada servidor y filtrar el Latino
     server_items = re.findall(r'(?s)<li(.*?)</li>', html)
     
     for item in server_items:
-        # Solo procesar si tiene data-post
         if 'data-post' not in item:
             continue
             
@@ -65,7 +58,7 @@ def main():
         
         # Extraer el texto del botón (donde dice Latino, Subtitulado, etc.)
         texto = re.sub(r'<[^>]+>', '', item).strip()
-        texto = " ".join(texto.split()) # Limpiar espacios
+        texto = " ".join(texto.split())
 
         if post:
             post_id = post.group(1)
@@ -75,7 +68,6 @@ def main():
             print(f"\n--- Servidor encontrado: {texto} ---")
             print(f"   POST: {post_id} | NUME: {nume_val} | TYPE: {type_val}")
             
-            # Solo intentar con el que diga "Latino" o el primero que aparezca si no está claro
             if "Latino" in texto or "Latino" in item:
                 print("   🎯 ¡Este es el Latino! Simulando clic...")
                 
@@ -111,3 +103,6 @@ def main():
                 except Exception as e:
                     print(f"   ❌ Error en la petición AJAX: {e}")
                 break # Detenerse después de encontrar el Latino
+
+if __name__ == "__main__":
+    main()
