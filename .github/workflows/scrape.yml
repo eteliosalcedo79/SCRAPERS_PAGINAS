@@ -26,22 +26,21 @@ jobs:
       - name: Instalar navegador de Playwright
         run: playwright install --with-deps chromium
 
-      # Aquí se ejecuta tu scraper.py (que ahora es el script de depuración)
       - name: Ejecutar Scraper
         run: python -u scraper.py
 
-      # ESTE ES EL PASO CLAVE: Sube los archivos generados para que los descargues
       - name: Subir archivos de depuración
         uses: actions/upload-artifact@v4
         with:
           name: html-debug
-          # Aquí le decimos que busque el HTML y la captura de pantalla
           path: |
-            debug_pagina.html
-            debug_pantalla.png
-          if-no-files-found: warn
+            debug_*.html
+          if-no-files-found: ignore
 
-      - name: Post Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - name: Guardar resultados directamente en el repositorio
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add canales_deporflix.json || echo "No hay archivo JSON"
+          git diff --staged --quiet || git commit -m "Actualización automática de canales"
+          git push
