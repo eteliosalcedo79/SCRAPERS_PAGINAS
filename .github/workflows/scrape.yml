@@ -18,31 +18,30 @@ jobs:
         with:
           python-version: '3.12'
 
-      # 1. Instalar las librerías de Python (Playwright y curl_cffi)
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
           pip install playwright curl_cffi
 
-      # 2. ¡CRUCIAL! Instalar el navegador Chromium y sus dependencias de sistema
       - name: Instalar navegador de Playwright
         run: playwright install --with-deps chromium
 
+      # Aquí se ejecuta tu scraper.py (que ahora es el script de depuración)
       - name: Ejecutar Scraper
         run: python -u scraper.py
 
-      - name: Subir archivo HTML de depuración
+      # ESTE ES EL PASO CLAVE: Sube los archivos generados para que los descargues
+      - name: Subir archivos de depuración
         uses: actions/upload-artifact@v4
         with:
           name: html-debug
-          path: debug_*.html
-          if-no-files-found: ignore
+          # Aquí le decimos que busque el HTML y la captura de pantalla
+          path: |
+            debug_pagina.html
+            debug_pantalla.png
+          if-no-files-found: warn
 
-      - name: Guardar resultados directamente en el repositorio
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          # Agregamos el JSON de resultados y los archivos debug
-          git add canales_deporflix.json debug_*.html || echo "No hay archivos para guardar"
-          git diff --staged --quiet || git commit -m "Actualización automática de resultados"
-          git push
+      - name: Post Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
