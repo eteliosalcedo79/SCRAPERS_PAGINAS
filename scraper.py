@@ -20,39 +20,38 @@ async def main():
 
         print("🌐 Abriendo pirlotvapp...", flush=True)
         try:
-            await page.goto(URL, wait_until="networkidle", timeout=60000)
+            # AQUÍ ESTÁ EL CAMBIO: "domcontentloaded" en vez de "networkidle"
+            await page.goto(URL, wait_until="domcontentloaded", timeout=60000)
         except Exception as e:
             print(f"Error cargando página: {e}", flush=True)
             await browser.close()
             return
 
-        await page.wait_for_timeout(4000)
+        # Le damos 5 segundos extra para que cargue el JS de los partidos
+        await page.wait_for_timeout(5000)
 
-        # 1. LOCALIZAR LOS EVENTOS (Buscamos los <li> que contienen el botón del partido)
+        # 1. LOCALIZAR LOS EVENTOS
         eventos = page.locator("li:has(button.ag-toggle)")
         total_eventos = await eventos.count()
         print(f"Se encontraron {total_eventos} eventos.", flush=True)
 
         for i in range(total_eventos):
             try:
-                # Seleccionamos el evento actual (la caja fuerte)
                 evento_actual = eventos.nth(i)
                 titulo = await evento_actual.locator("span.font-semibold").inner_text()
                 titulo = titulo.strip()
                 
                 print(f"\n[{i+1}/{total_eventos}] Abriendo evento: {titulo}", flush=True)
 
-                # Hacemos clic para desplegar el acordeón
+                # Clic para abrir acordeón
                 await evento_actual.locator("button.ag-toggle").click()
                 await page.wait_for_timeout(2000)
 
                 results[titulo] = {}
 
-                # 2. BUSCAR CANALES (¡SOLO DENTRO DEL EVENTO ACTUAL!)
-                # Buscamos elementos clickeables dentro de este <li> específico
+                # 2. BUSCAR CANALES (DENTRO DEL EVENTO)
                 canales = evento_actual.locator("button, a").filter(has_text="Español")
                 
-                # Si no encuentra "Español", buscamos cualquier botón dentro del evento que no sea el de abrir/cerrar
                 if await canales.count() == 0:
                     canales = evento_actual.locator("button, a").filter(has_not_text="▾").filter(has_not_text="▴")
 
@@ -65,17 +64,16 @@ async def main():
                         nombre_canal = await canal_elem.inner_text()
                         nombre_canal = nombre_canal.strip().replace("\n", " ")
                         
-                        # Evitar clics accidentales en botones vacíos o el título del partido
                         if len(nombre_canal) < 3 or "vs" in nombre_canal: 
                             continue
 
                         print(f"     -> Abriendo canal: {nombre_canal}", flush=True)
                         
-                        # 3. CLIC EN EL CANAL (Abre el modal)
+                        # Clic en canal
                         await canal_elem.click(force=True) 
-                        await page.wait_for_timeout(4000) # Esperar a que cargue el iframe
+                        await page.wait_for_timeout(4000)
 
-                        # 4. EXTRAER EL SRC DEL IFRAME (El modal se abre en el body, así que buscamos global)
+                        # Extraer iframe
                         iframe = page.locator("iframe").first
                         if await iframe.count() > 0:
                             src = await iframe.get_attribute("src")
@@ -85,7 +83,7 @@ async def main():
                             print("     ❌ No se encontró iframe", flush=True)
                             results[titulo][nombre_canal] = None
 
-                        # 5. CERRAR EL MODAL
+                        # Cerrar modal
                         await page.keyboard.press("Escape") 
                         await page.wait_for_timeout(1000)
                         
@@ -99,7 +97,7 @@ async def main():
                         await page.keyboard.press("Escape")
                         await page.wait_for_timeout(1000)
 
-                # Volver a hacer clic en el evento para cerrar el acordeón
+                # Cerrar acordeón
                 await evento_actual.locator("button.ag-toggle").click()
                 await page.wait_for_timeout(1000)
 
