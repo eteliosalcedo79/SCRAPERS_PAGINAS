@@ -5,8 +5,8 @@ URL = "https://pirlotvapp.pro/"
 
 async def main():
     async with async_playwright() as p:
-        # headless=False para que puedas ver la magia en acción
-        browser = await p.chromium.launch(headless=False)
+        # En GitHub Actions SIEMPRE debe ser headless=True
+        browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
             user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -23,58 +23,54 @@ async def main():
             await browser.close()
             return
 
-        # 1. Guardamos el HTML inicial (Aquí deberían estar los eventos)
-        await page.wait_for_timeout(3000)
+        await page.wait_for_timeout(4000)
+        
+        # 1. Guardar HTML inicial y captura
         html_inicial = await page.content()
         with open("1_principal.html", "w", encoding="utf-8") as f:
             f.write(html_inicial)
+        await page.screenshot(path="1_principal.png")
         print("✅ Guardado: 1_principal.html")
 
-        # 2. Intentamos abrir el primer acordeón (Evento)
+        # 2. Clic en el primer evento
         print("🖱️ Intentando clic en el primer evento...", flush=True)
         try:
-            # Buscamos un elemento clickeable. Como no sabemos la clase exacta, 
-            # buscamos el texto del primer partido que se ve en tu captura.
-            # Si falla, intentará con selectores genéricos de tarjetas.
-            primer_evento = page.locator("text=AFC Champions League Elite").first
+            # Buscamos el texto del partido que sale en tu captura
+            primer_evento = page.locator("text=Al-Qadisiyah").first
             if await primer_evento.count() == 0:
-                # Si no está el texto exacto, intentamos buscar cualquier cosa que parezca un título de partido
-                primer_evento = page.locator("div[class*='card'], div[class*='event'], div[class*='match']").first
+                primer_evento = page.locator("text=ESPN").first
             
-            await primer_evento.click(timeout=5000)
-            await page.wait_for_timeout(2000) # Esperamos a que se abra el acordeón
+            await primer_evento.click(timeout=10000)
+            await page.wait_for_timeout(3000) 
             
             html_acordeon = await page.content()
             with open("2_acordeon.html", "w", encoding="utf-8") as f:
                 f.write(html_acordeon)
-            print("✅ Guardado: 2_acordeon.html (Con el evento desplegado)")
+            await page.screenshot(path="2_acordeon.png")
+            print("✅ Guardado: 2_acordeon.html")
             
         except Exception as e:
             print(f"⚠️ No se pudo hacer clic en el evento: {e}")
-            print("   (No te preocupes, el HTML inicial ya está guardado).")
 
-        # 3. Intentamos abrir el primer canal (Modal)
-        print("🖱️ Intentando clic en el primer canal (ESPN)...", flush=True)
+        # 3. Clic en el primer canal
+        print("🖱️ Intentando clic en el primer canal...", flush=True)
         try:
-            # Buscamos el botón del canal. Viendo tu captura, tienen un ícono de "play" rojo.
-            # Intentamos buscar texto como "ESPN" o "Español"
             primer_canal = page.locator("text=ESPN").first
             if await primer_canal.count() == 0:
-                # Si no, buscamos botones genéricos dentro del acordeón
-                primer_canal = page.locator("button, a[class*='channel'], li[class*='channel']").first
+                primer_canal = page.locator("text=Español").first
 
-            await primer_canal.click(timeout=5000)
-            await page.wait_for_timeout(3000) # Damos tiempo a que cargue el iframe
+            await primer_canal.click(timeout=10000)
+            await page.wait_for_timeout(4000) 
             
             html_modal = await page.content()
             with open("3_modal.html", "w", encoding="utf-8") as f:
                 f.write(html_modal)
-            print("✅ Guardado: 3_modal.html (Con el reproductor abierto)")
+            await page.screenshot(path="3_modal.png")
+            print("✅ Guardado: 3_modal.html")
             
         except Exception as e:
             print(f"⚠️ No se pudo hacer clic en el canal: {e}")
 
-        print("\n🎉 Proceso terminado. Revisa los archivos HTML en tu carpeta.")
         await browser.close()
 
 if __name__ == "__main__":
