@@ -2,78 +2,73 @@ import asyncio
 import json
 from playwright.async_api import async_playwright
 
-# --- CONFIGURACIÓN ---
-SITE_ROOT = "https://deporflix.pe"
-OUTPUT_FILE = "canales_deporflix.json"
+SITE_ROOT = "https://pelotalibre.biz"
+AGENDA_URL = f"{SITE_ROOT}/agenda"
+OUTPUT_FILE = "eventos_pelotalibre.json"
 
-
-async def get_all_iframes(context, url, debug_name=None):
-    """Abre la página del canal, hace clic en cada opción y extrae todos los iframes."""
-    nueva = await context.new_page()
-    srcs_encontrados = []
-    
+async def get_embeds_from_match_page(context, match_url, match_name):
+    """Paso 2 y 3: Entra a la página del partido y extrae los iframes de cada fuente."""
+    page = await context.new_page()
+    embeds = []
     try:
-        await nueva.goto(url, wait_until="domcontentloaded", timeout=30000)
-        
-        # Esperamos un poco a que cargue el reproductor y las opciones
-        await nueva.wait_for_timeout(3000)
-        
-        # Buscamos los botones de opciones. 
-        # En la mayoría de estos sitios, son elementos <li> o <a> que contienen la palabra OPCIÓN
-        opciones = nueva.locator("li:has-text('OPCIÓN'), a:has-text('OPCIÓN'), .options ul li")
-        count = await opciones.count()
+        await page.goto(match_url, wait_until="domcontentloaded", timeout=30000)
+        # Esperar a que la página cargue el contenedor del reproductor
+        await page.wait_for_timeout(3000) 
 
+        # Buscamos los botones de las fuentes. 
+        # Basado en la imagen 4, los botones contienen el texto "FUENTE"
+        # (Ajusta este selector si es necesario, por ejemplo: '.source-btn', 'a:has-text("FUENTE")', etc.)
+        source_buttons = page.locator('button:has-text("FUENTE"), a:has-text("FUENTE"), div:has-text("FUENTE")')
+        
+        count = await source_buttons.count()
+        
         if count == 0:
-            # Si no hay botones de opciones, intentamos sacar el iframe por defecto
+            # Si no hay botones de fuente, intentamos sacar el iframe por defecto
             try:
-                await nueva.wait_for_selector("iframe", state="attached", timeout=10000)
-                iframe = nueva.locator("iframe").first
+                await page.wait_for_selector("iframe", state="attached", timeout=5000)
+                iframe = page.locator("iframe").first
                 src = await iframe.get_attribute("src") or await iframe.get_attribute("data-src")
                 if src:
-                    srcs_encontrados.append(src)
+                    embeds.append({"fuente": "Por defecto", "url": src})
             except Exception:
                 pass
-            return srcs_encontrados
+            return embeds
 
-        print(f"     Encontradas {count} opciones. Extrayendo...", flush=True)
+        print(f"      Encontradas {count} fuentes. Extrayendo...")
 
-        # Hacemos clic en cada opción
         for i in range(count):
-            btn = opciones.nth(i)
+            btn = source_buttons.nth(i)
             try:
-                # Hacemos clic en la opción
+                # Obtenemos el nombre de la fuente (ej. "FUENTE 1 ESPN 2")
+                source_name = await btn.inner_text()
+                source_name = source_name.strip().replace("\n", " ")
+
+                # Hacemos clic en la fuente
                 await btn.click()
-                # Esperamos a que el iframe se actualice
-                await nueva.wait_for_timeout(2500)
+                
+                # Esperamos un poco a que el iframe se actualice
+                await page.wait_for_timeout(2500)
                 
                 # Extraemos el src del iframe actual
-                iframe = nueva.locator("iframe").first
+                iframe = page.locator("iframe").first
                 src = await iframe.get_attribute("src")
                 
-                # A veces los reproductores usan 'data-src' en lugar de 'src'
                 if not src or src.strip() == "":
                     src = await iframe.get_attribute("data-src")
                     
-                if src and src not in srcs_encontrados:
-                    srcs_encontrados.append(src)
+                if src and not any(e["url"] == src for e in embeds):
+                    embeds.append({"fuente": source_name, "url": src})
                     
             except Exception as e:
-                # Si una opción falla, que siga con la siguiente
-                pass
+                print(f"        ⚠️ Error al extraer fuente {i+1}: {e}")
                 
-        return srcs_encontrados
+        return embeds
 
     except Exception as e:
-        print(f"       ⚠️ Error general en {debug_name}: {e}", flush=True)
-        if debug_name:
-            try:
-                with open(f"debug_{debug_name}.html", "w", encoding="utf-8") as f:
-                    f.write(await nueva.content())
-            except Exception:
-                pass
-        return srcs_encontrados
+        print(f"      ❌ Error general en la página del partido: {e}")
+        return embeds
     finally:
-        await nueva.close()
+        await page.close()
 
 
 async def main():
@@ -82,84 +77,91 @@ async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
-            user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/120.0.0.0 Safari/537.36"),
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             viewport={"width": 1280, "height": 900},
         )
         page = await context.new_page()
 
-        print("Abriendo página principal de Deporflix...", flush=True)
-        try:
-            await page.goto(SITE_ROOT, wait_until="networkidle", timeout=60000)
-        except Exception as e:
-            print(f"Error cargando la página: {e}", flush=True)
-            await browser.close()
-            return
+        print(f"Abriendo agenda: {AGENDA_URL}")
+        await page.goto(AGENDA_URL, wait_until="networkidle", timeout=60000)
 
-        # --- PASO 1: Extraer los enlaces de los canales ---
-        print("Buscando lista de canales...", flush=True)
-        channel_selector = ".items.featured article"
+        # --- PASO 1: Extraer eventos de la agenda ---
+        print("Buscando eventos en la agenda...")
         
-        try:
-            await page.wait_for_selector(channel_selector, timeout=30000)
-        except Exception as e:
-            print(f"No se encontraron canales tras 30s de espera: {e}", flush=True)
-            await browser.close()
-            return
-
-        canales = await page.evaluate("""
-            () => {
-                const out = [];
-                document.querySelectorAll('.items.featured article').forEach(article => {
-                    const enlace = article.querySelector('.data h3 a');
-                    if (enlace) {
-                        const nombre = enlace.innerText.trim();
-                        const href = enlace.getAttribute('href');
-                        if (href && nombre) {
-                            if (!out.some(item => item.href === href)) {
-                                out.push({ nombre: nombre, href: href });
-                            }
-                        }
-                    }
-                });
-                return out;
-            }
-        """)
-
-        total_canales = len(canales)
-        print(f"Se encontraron {total_canales} canales.", flush=True)
-
-        # --- PASO 2: Iterar sobre cada canal ---
-        for i, canal in enumerate(canales):
-            nombre_canal = canal["nombre"]
-            href = canal["href"]
+        # Primero, desplegamos todos los acordeones haciendo clic en las flechas o en los eventos.
+        # Asumiendo que hay botones con flechas o que al hacer clic en el título se abre.
+        # Vamos a intentar extraer los enlaces directamente si están en el HTML oculto:
+        
+        # Buscamos todos los enlaces que digan "Abrir partido"
+        # Si el texto exacto varía, cambia 'Abrir partido' por la clase CSS correspondiente
+        match_links = await page.locator('a:has-text("Abrir partido")').all()
+        
+        # Si no los encuentra directamente, hay que interactuar con los acordeones:
+        if not match_links:
+            print("No se encontraron enlaces directos. Expandiendo acordeones...")
+            # Buscar los elementos que despliegan el acordeón (ej. las flechas a la derecha)
+            toggles = await page.locator('.event-item .toggle-icon, .match-row').all() # Ajusta este selector
+            for toggle in toggles:
+                try:
+                    await toggle.click()
+                    await page.wait_for_timeout(500)
+                except:
+                    pass
             
-            if href.startswith("http"):
-                url_canal = href
-            else:
-                url_canal = SITE_ROOT.rstrip("/") + "/" + href.lstrip("/")
+            # Volvemos a buscar los enlaces ahora que están visibles
+            match_links = await page.locator('a:has-text("Abrir partido")').all()
 
-            print(f"\n[{i+1}/{total_canales}] Procesando: {nombre_canal}", flush=True)
+        total_partidos = len(match_links)
+        print(f"Se encontraron {total_partidos} partidos para procesar.")
 
-            # Extraemos la lista de iframes
-            srcs = await get_all_iframes(context, url_canal, debug_name=f"canal_{i+1}")
-            
-            # Guardamos la lista en el JSON
-            results[nombre_canal] = srcs
-            
-            if srcs:
-                print(f"     ✅ {len(srcs)} embeds encontrados.", flush=True)
-            else:
-                print(f"     ❌ No se encontraron embeds.", flush=True)
+        # --- PASO 2: Iterar sobre cada partido ---
+        for i, link in enumerate(match_links):
+            try:
+                # Intentamos obtener el nombre del partido. 
+                # Subimos al contenedor padre del enlace para buscar el título.
+                # (Ajusta el selector si es necesario)
+                parent = link.locator('xpath=ancestor::div[contains(@class, "event") or contains(@class, "match")][1]')
+                try:
+                    match_name = await parent.locator('.event-title, .match-title').first.inner_text()
+                    match_name = match_name.strip()
+                except:
+                    match_name = f"Partido {i+1}"
+
+                print(f"\n[{i+1}/{total_partidos}] Procesando: {match_name}")
+
+                # Obtener la URL del partido
+                href = await link.get_attribute("href")
+                if not href:
+                    # Si es un botón que usa JavaScript, hacemos clic y obtenemos la URL
+                    await link.click()
+                    await page.wait_for_load_state("domcontentloaded")
+                    match_url = page.url
+                    await page.go_back() # Volvemos a la agenda para el siguiente
+                else:
+                    match_url = href if href.startswith("http") else f"{SITE_ROOT}{href}"
+
+                # Extraer los embeds de la página del partido
+                embeds = await get_embeds_from_match_page(context, match_url, match_name)
+                
+                # Guardar en el diccionario general
+                if match_name in results:
+                    match_name = f"{match_name} ({i+1})"
+                results[match_name] = embeds
+                
+                if embeds:
+                    print(f"     ✅ {len(embeds)} embeds encontrados.")
+                else:
+                    print(f"     ❌ No se encontraron embeds.")
+
+            except Exception as e:
+                print(f"  ❌ Error procesando el partido {i+1}: {e}")
 
         await browser.close()
 
     # Guardar resultados
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
-    print(f"\n✅ Guardado en {OUTPUT_FILE}", flush=True)
-
+    print(f"\n✅ Datos guardados en {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     asyncio.run(main())
