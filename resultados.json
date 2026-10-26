@@ -1,3 +1,8 @@
 {
-    "embed_partido": "https://a14.kora-plus.li/live/b2.m3u8?token=RS_egw911_ofZpzM-_V9MPeyU4Y&exp=1793029938"
+    "AFC Champions League Elite: Al-Qadisiyah FC vs Al Sadd": {
+        "▶ ESPN4 Español": "/reproducir/?url=https%3A%2F%2Fla18hd.su%2Fvivo%2Fcanal.php%3Fstream%3Despn4",
+        "▶ Disney 02 Español": "/reproducir/?url=https%3A%2F%2Fla18hd.su%2Fvivo%2Fcanal.php%3Fstream%3Despn4",
+        "▶ ESPN4 Movil Español": "/reproducir/?url=https%3A%2F%2Fla18hd.su%2Fvivo%2Fcanal.php%3Fstream%3Despn4",
+        "▶ ESPN3 MX Español": "/reproducir/?url=https%3A%2F%2Fla18hd.su%2Fvivo%2Fcanal.php%3Fstream%3Despn4"
+    }
 }
